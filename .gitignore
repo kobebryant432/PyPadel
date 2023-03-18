@@ -1,5 +1,8 @@
+#Conda enviroments
 .conda
 
+#Pycache
 __pychache__
 
+#Output data
 .xlsx
