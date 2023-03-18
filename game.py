@@ -3,6 +3,7 @@ class game():
     def __init__(self) -> None:
         self.score_t1 = 0
         self.score_t2 = 0
+        self.points = {}
         self.finished = False
 
     def __str__(self) -> str:
@@ -13,7 +14,8 @@ class game():
         else:
             return f'Game score is {game.sc_tr[self.score_t1]}-{game.sc_tr[self.score_t2]}'
 
-    def update(self, team):
+    def update(self, team, point):
+        self.points[self.score()] = point
         if not self.finished:
             if team == 1:
                 self.score_t1 +=1
@@ -36,3 +38,7 @@ class game():
 
     def score(self):
         return f'{game.sc_tr[self.score_t1]}-{game.sc_tr[self.score_t2]}'
+    
+    def game_summary(self):
+        for score, point in self.points.items():
+            print(f'Score {score} - {point}')
