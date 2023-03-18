@@ -2,7 +2,8 @@
 .conda
 
 #Pycache
-__pychache__
+__pycache__/
+*.pyc
 
 #Output data
-.xlsx
+*.xlsx

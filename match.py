@@ -3,8 +3,8 @@ from set import set
 from points import *
 
 class match:
+    #Convention -> player 1 and 3 on the left, player 2 and 4 on the right
     input_map = {'f':'Forced Error', 'u':'Unforced Error', 'w':'Winner'}
-    #Sub Categories -> 
     team = {1:0, 2:0, 3:1, 4:1}
     team_map = {'w':0,'f':0,'u':1}
     
@@ -43,7 +43,10 @@ class match:
 
     def play_match(self, list):
         for l in list:
-            self.update(l)
+            if l[0] == '#':
+                self.current_set.update_server(int(l[1]))
+            else:
+                self.update(l)
 
     def get_summary(self):
         def color(val):
@@ -67,6 +70,21 @@ class match:
         idx = pd.IndexSlice[p.index.get_level_values(level=0)=='u', :]
         idxg = pd.IndexSlice[p.index.get_level_values(level=0).isin(['w','f']), :]
         p = p.style.applymap(color, subset=idx).applymap(color_good, subset=idxg)
+        return p
+    
+    def get_det_summary(self, dir=False):
+        if dir:
+            cols = ['set','direction']
+        else:
+            cols = ['set']
+        df = pd.DataFrame(self.raw_score, columns=['set','set_score','game','game_score','player','team','category','side','shot_type','direction','raw'])
+        p = pd.pivot_table(df, values='raw',index=['team','player','category','side','shot_type'],columns=cols, aggfunc='count').fillna(0).astype(int)
+        def make_pretty(styler):
+            for pl in self.players:
+                idx = pd.IndexSlice[p.index.get_level_values(level=1)==pl.name, :]
+                styler.background_gradient(axis=None,subset=idx)
+            return styler
+        p = p.style.pipe(make_pretty)
         return p
 
     def game_summary(self, set, game):
