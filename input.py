@@ -12,18 +12,54 @@ def start_match():
 
     while True:
         x = input()
-        if input_ok(x):
-            m.update(x)
+        if x == 'Q':
+              break
+        while not input_ok(x):
+             x = input(f'{x} is an invallid input. Try again')
+        m.update(x)
+            
     
 def input_ok(x):
+    x = x.lower()
+    pl = {'1','2','3','4'}
+    cat = {'f','u','w'}
+    side = {'fh','bh','hi'}
+    shot = {'v','o','n', 'g','r','l','s','V','k','b', 'j','k','f'}
+    direction = {'c','p','n','l','m'}
+    if x[0] == "#" and x[1] in pl:
+          return True
+    if len(x) < 6:
+          print('Input lenght is to short')
+          return False
+    if x[0] not in pl:
+            print(f'Player is incorrect -> got {x[0]}')
+            return False
+    if x[1] not in cat:
+            print(f'Category is incorrect -> got {x[1]} which is not in {cat}')
+            return False
+    if x[2:4] not in side:
+            print(f'The side is incorrect -> got {x[2:4]} which is not in {side}')
+            return False
+    if x[4] not in shot:
+            print(f'Shot is incorrect -> got {x[4]} which is not in {shot}')
+            return False
+    if x[5] not in direction:
+            print(f'Direction is incorrect -> got {x[5]} which is not in {direction}')
+            return False
+    if x[1] == 'f':
+        if len(x) < 10:
+            print('Input lenght is to short')
+            return False
+        if x[6] not in pl:
+            print(f'Player making the forced error is incorrect -> got {x[0]}')
+            return False
+        if x[7:9] not in side:
+            print(f'The side of player making the forced error is incorrect -> got {x[7:9]} which is not in {side}')
+            return False
+        if x[9] not in shot:
+            print(f'Shot of player making the forced error is incorrect -> got {x[9]} which is not in {shot}')
+            return False
     return True
 
-#start_match()
-    
 
-m = match([player(name) for name in ['Ilse','Fien','Kelly Maene','Elizabeth Lamaire']])
-m.play_match(['1ubhnn', '1ufhsn', '2whivc', '2wbhvc', '3ffhvc1fhn', '4ubhsn', '4wfhom', '1wbhgc', '3ufhvn', '2ubhgn', '3fhibc2fhn', '3fhisp1fhn', '2ufhgl', '4ubhvn', '4ufhnp', '2ufhvn', '4wbhnc', '1ubhvp', '4ubhrl', '4fhisp1fhn', '3wfhvp', '4uhivp', '3uhivc', '4uhisn', '4ffhvp1fhn', '2ufhlp', '1wfhvm', '4ufhnn', '2ubhnn', '4ubhgn', '4wfhvp', '2wfhvp', '1ufhsl', '3whisp', '4wfhgc', '4ufhvl', '1ufhrn', '2ubhnn', '3whisc', '3ubhnn', '4ufhgn', '3ubhrl', '1ufhgn', '3ufhrl', '2ubhnn', '2ufhvl', '1ufhnc', '4wbhvc', '4ufhgn', '2whivp', '4wfhnc', '2uhisl', '4ufhvp', '1uhivc', '4ubhrl', '3ubhvn', '4ufhvp', '2wbhnc', '4whivc', '4uhivn', '1wfhvm', '1wfhvm', '4fhijm2fhv', '2ufhvn', '2wfhvp', '1whivm', '1ufhnn', '4ufhvn', '4wfhvp', '1fbhvp4bhv', '1ufhnn', '4wfhvc', '2ufhgn', '2whivp', '4ufhvp', '3wfhvc', '3uhivc', '2ubhvl', '4fbhnc2bhn', '3wbhvp', '2ubhrn', '4wfhvp', '2ubhrn', '3ufhrn', '1ufhnn', '4wbhnm', '3wbhvc', '3ufhrn', '2whivp', '4wfhgc', '2ubhnp', '1ubhnv', '3ubhnn', '2ubhrl', '1ufhrn', '3wfhnm', '2ubhll', '3ubhvl', '2ufhvp', '1ufhvl'])
-df = m.get_summary()
-m.game_summary(1,7)
-df1 = m.get_det_summary()
-df2 = m.get_det_summary(dir=True)
+
