@@ -7,3 +7,9 @@ __pycache__/
 
 #Output data
 *.xlsx
+
+#Input files
+in/
+
+#Output files
+out/
