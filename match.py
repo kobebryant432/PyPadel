@@ -1,5 +1,5 @@
 import pandas as pd
-from set import set
+from set import *
 from points import *
 from datetime import date
 
@@ -9,10 +9,10 @@ class match:
     team = {1:0, 2:0, 3:1, 4:1}
     team_map = {'w':0,'f':0,'u':1}
     
-    def __init__(self, players, date=date.today(), tournament='practise',round='None') -> None:
+    def __init__(self, players, date=date.today(), tournament='practise',r='None') -> None:
         self.date = date
         self.tournament = tournament
-        self.round = round
+        self.r = r
         self.players = players
         self.raw_score = []
         self.current_set = set()
@@ -20,7 +20,7 @@ class match:
         self.finished = False
 
     def __str__(self) -> str:
-        return f"A {self.round} match in {self.tournament} on {self.date} between {self.players}"
+        return f'A {self.r} match in {self.tournament} on {self.date} between {self.players[0].name}/{self.players[1].name} vs {self.players[2].name}/{self.players[3].name}'
 
     def update(self, x):
         if x[1] == 'f':
@@ -43,14 +43,18 @@ class match:
         self.current_set.update(point_winner+1, p)
         if self.current_set.finished:
             self.sets.append(self.current_set)
-            self.current_set = set()
+            self.current_set = self.new_set()
             for i,se in enumerate(self.sets):
                 print(i, se)
-
+    
+    def new_set(self):
+        return set()
 
     def play_match(self, list):
         from input import input_ok
         for l in list:
+            if l[0] == "!":
+                pass
             if l[0] == '#':
                 self.current_set.update_server(int(l[1]))
             else:
@@ -100,5 +104,21 @@ class match:
     def game_summary(self, set, game):
         print(f'Set {set} , Game {game}')
         self.sets[set-1].games[game-1].game_summary()
+
+    def export(self, file):
+        writer = pd.ExcelWriter(file, engine='xlsxwriter')
+        self.get_summary().to_excel(writer,sheet_name='match_summary')
+        self.get_det_summary().to_excel(writer,sheet_name='shots_summary')
+        self.get_det_summary(dir=True).to_excel(writer,sheet_name='shot_dir_summary')
+        writer.close()
+        
     
+class match_tie(match):
+    def __init__(self, players, date=date.today(), tournament='practise', r='None') -> None:
+        super().__init__(players, date, tournament, r)
     
+    def new_set(self):
+        if len(self.sets) == 2:
+            return tiebreak_set(target=10)
+        else:
+            return set()

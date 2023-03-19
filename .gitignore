@@ -2,7 +2,7 @@
 .conda
 
 #Pycache
-__pycache__/
+__pycache__
 *.pyc
 
 #Output data
@@ -13,3 +13,6 @@ in/
 
 #Output files
 out/
+
+#log files
+*.log

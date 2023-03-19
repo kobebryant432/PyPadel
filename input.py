@@ -2,6 +2,7 @@ from player import player
 from match import match
 import pandas as pd
 
+#Update!
 def start_match():
     p1 = player(input('Name player 1: '))
     p2 = player(input('Name player 2: '))

@@ -42,3 +42,25 @@ class game():
     def game_summary(self):
         for score, point in self.points.items():
             print(f'Score {score} - {point}')
+
+class tiebreak(game):
+    def __init__(self, target=7) -> None:
+        super().__init__()
+        self.target = target
+
+    def __str__(self) -> str:
+        if self.finished:
+            return f'Team {self.winner} won the tie-break - {self.score_t1}-{self.score_t2}'
+        else:
+            return f'Tie-break score is {self.score_t1}-{self.score_t2}'
+        
+    def is_finished(self):
+        if self.score_t1 >= self.target and self.score_t1 - self.score_t2 > 1:
+            self.winner = 1
+            self.finished = True
+        if self.score_t2 >= self.target and self.score_t2 - self.score_t1 > 1:
+            self.winner = 2
+            self.finished = True
+
+    def score(self):
+        return f'{self.score_t1}-{self.score_t2}'
