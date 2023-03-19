@@ -1,6 +1,7 @@
 import pandas as pd
 from set import set
 from points import *
+from datetime import date
 
 class match:
     #Convention -> player 1 and 3 on the left, player 2 and 4 on the right
@@ -8,12 +9,18 @@ class match:
     team = {1:0, 2:0, 3:1, 4:1}
     team_map = {'w':0,'f':0,'u':1}
     
-    def __init__(self, players) -> None:
+    def __init__(self, players, date=date.today(), tournament='practise',round='None') -> None:
+        self.date = date
+        self.tournament = tournament
+        self.round = round
         self.players = players
         self.raw_score = []
         self.current_set = set()
         self.sets = []
         self.finished = False
+
+    def __str__(self) -> str:
+        return f"A {self.round} match in {self.tournament} on {self.date} between {self.players}"
 
     def update(self, x):
         if x[1] == 'f':
@@ -42,10 +49,13 @@ class match:
 
 
     def play_match(self, list):
+        from input import input_ok
         for l in list:
             if l[0] == '#':
                 self.current_set.update_server(int(l[1]))
             else:
+                while not input_ok(l):
+                    l = input(f'{l} is an invalid input. Please correct it:')
                 self.update(l)
 
     def get_summary(self):
@@ -67,8 +77,8 @@ class match:
             return 'background-color: %s' % color
         df = pd.DataFrame(self.raw_score, columns=['set','set_score','game','game_score','player','team','category','side','shot_type','direction','raw'])
         p = pd.pivot_table(df, values='raw',index=['category','team','player'],columns=['set','set_score'], aggfunc='count').fillna(0).astype(int)
-        idx = pd.IndexSlice[p.index.get_level_values(level=0)=='u', :]
-        idxg = pd.IndexSlice[p.index.get_level_values(level=0).isin(['w','f']), :]
+        idx = pd.IndexSlice[p.index.get_level_values(level=0)=='Unforced Error', :]
+        idxg = pd.IndexSlice[p.index.get_level_values(level=0).isin(['Winner','Forced Winner']), :]
         p = p.style.applymap(color, subset=idx).applymap(color_good, subset=idxg)
         return p
     
