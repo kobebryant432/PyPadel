@@ -2,14 +2,19 @@ from player import player
 from match import match
 import pandas as pd
 
-#Update!
 def start_match():
+    date = input('Date of the Tournament: ')
+    tournament = input('Tournament name: ')
+    r = input('Round :')
     p1 = player(input('Name player 1: '))
     p2 = player(input('Name player 2: '))
     p3 = player(input('Name player 3: '))
     p4 = player(input('Name player 4: '))
+    m_type = input('Match_type')
 
-    m = match([p1,p2,p3,p4])
+    players = [player(p) for p in [p1,p2,p3,p4]]
+
+    m = match.create(int(m_type),players=players, date=date, tournament=tournament, r=r)
 
     while True:
         x = input()
