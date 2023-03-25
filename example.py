@@ -11,9 +11,9 @@ from database import database
 # df1 = m.get_det_summary()
 # df2 = m.get_det_summary(dir=True)
 
-db = database('test')
-db.load_db('in/input_clean.xlsx')
-db.export_all()
+# db = database('test')
+# db.load_db('in/input_clean.xlsx')
+# db.export_all()
 
-# M_1000 = database('P1000 Men')
-# M_1000.load_db('in/input_clean.xlsx', sheet_name='Heren 1000')
+M_1000 = database('P1000 Men')
+M_1000.load_db('in/input_clean.xlsx', sheet_name='Heren 1000')

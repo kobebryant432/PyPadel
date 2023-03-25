@@ -5,6 +5,7 @@ import sys
 import sys
 
 class database():
+
     def __init__(self, name) -> None:
         self.name = name
         self.matches = None
@@ -39,7 +40,7 @@ class database():
     def create_match(self, row):
         pl_name = [row.player_1,row.player_2,row.player_3,row.player_4]
         players = [player(name) for name in pl_name]
-        m = match_tie(players=players, date=row.date, tournament=row.tournament, r=row.round)
+        m = match.create(int(row.match_type),players=players, date=row.date, tournament=row.tournament, r=row.round)
         data = [x.strip(' ') for x in row.data.split(",")]
         print(f'Starting to load: match {m}')
         m.play_match(data)

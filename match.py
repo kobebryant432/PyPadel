@@ -8,6 +8,18 @@ class match:
     input_map = {'f':'Forced Error', 'u':'Unforced Error', 'w':'Winner'}
     team = {1:0, 2:0, 3:1, 4:1}
     team_map = {'w':0,'f':0,'u':1}
+
+    @classmethod
+    def create(cls, message_type, *args,**kwargs):
+        MESSAGE_TYPE_TO_CLASS_MAP = {
+        0:  match_tie,
+        1: match_3_sets,
+        }
+
+        if message_type not in MESSAGE_TYPE_TO_CLASS_MAP:
+            raise ValueError('Bad message type {}'.format(message_type))
+    
+        return MESSAGE_TYPE_TO_CLASS_MAP[message_type](*args,**kwargs)
     
     def __init__(self, players, date=date.today(), tournament='practise',r='None') -> None:
         self.date = date
@@ -122,3 +134,11 @@ class match_tie(match):
             return tiebreak_set(target=10)
         else:
             return set()
+
+
+class match_3_sets(match):
+    def __init__(self, players, date=date.today(), tournament='practise', r='None') -> None:
+        super().__init__(players, date, tournament, r)
+    
+    def new_set(self):
+        return set()

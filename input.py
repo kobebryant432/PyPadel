@@ -24,9 +24,9 @@ def input_ok(x):
     x = x.lower()
     pl = {'1','2','3','4'}
     cat = {'f','u','w'}
-    side = {'fh','bh','hi'}
-    shot = {'v','o','n', 'g','r','l','s','V','k','b', 'j','k','f'}
-    direction = {'c','p','n','l','m'}
+    side = {'fh','bh','hi','hd'}
+    shot = {'v','o','n', 'g','r','l','s','V','k','b', 'j','z','f'}
+    direction = {'c','p','n','l','m','d','k'}
     if x[0] == "#" and x[1] in pl:
           return True
     if len(x) < 6:
