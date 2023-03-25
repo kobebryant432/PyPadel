@@ -17,3 +17,4 @@ from database import database
 
 M_1000 = database('P1000 Men')
 M_1000.load_db('in/input_clean.xlsx', sheet_name='Heren 1000')
+# M_1000.matches['match'][0].export_raw('in/b2.xlsx')

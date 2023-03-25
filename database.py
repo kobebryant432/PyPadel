@@ -27,8 +27,8 @@ class database():
         log_file.close()
 
     #ToDo -> Create a wat to add_match to a database of choice. 
-    def add_match():
-        pass
+    def add_match(self, m):
+        self.matches.loc[len(self.matches)] = [m.date,m.tournament,m.r,m.players[0].name,m.players[1].name,m.players[2].name,m.players[3].name,m.type,','.join(m.raw_input),m]
 
     def export_all(self):
         for m in self.matches['match']:
@@ -40,7 +40,7 @@ class database():
     def create_match(self, row):
         pl_name = [row.player_1,row.player_2,row.player_3,row.player_4]
         players = [player(name) for name in pl_name]
-        m = match.create(int(row.match_type),players=players, date=row.date, tournament=row.tournament, r=row.round)
+        m = match.create(int(row.match_type),players=players, date=row.date, tournament=row.tournament, r=str(row.r))
         data = [x.strip(' ') for x in row.data.split(",")]
         print(f'Starting to load: match {m}')
         m.play_match(data)
