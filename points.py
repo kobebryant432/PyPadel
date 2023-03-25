@@ -1,15 +1,15 @@
 class point():
     cat = {'f':'Forced Winner','u':'Unforced Error','w':'Winner'}
-    side = {'fh':'Forehand','bh':'Backhand','hi':'High'}
-    shot = {'v':'Volley','o':'Other','n':'Normal', 'g':'Glass','r':'return','l':'lob','s':'smash','V':'vibora','k':'kick','b':'bandeja', 'j':'bajada','k':'kick','f':'fake'}
-    direction = {'c':'cross','p':'parallel','n':'net','l':'long', 'm':'middle'}
+    side = {'fh':'Forehand','bh':'Backhand','hi':'High', 'hd':'High defense'}
+    shot = {'v':'Volley','o':'Other','n':'Normal', 'g':'Glass','r':'return','l':'lob','s':'smash','V':'vibora','k':'kick','b':'bandeja', 'j':'bajada','f':'fake','z':'double fault'}
+    direction = {'c':'cross','p':'parallel','n':'net','l':'long', 'm':'middle', 'd':'dropshot','k':'dunk'}
 
     def __init__(self, string) -> None:
         self.player = int(string[0])
         self.category = point.cat[string[1]]
         self.side = point.side[string[2:4]]
         #Dubbel use of letter v -> if high v = V = Vibora else it is a volley (v)
-        if string[2:4] == 'hi':
+        if string[2:4] in ['hi','hd']  and string[4] == 'v':
             self.shot_type = self.shot['V']
         else:
             self.shot_type = self.shot[string[4]]
