@@ -17,7 +17,7 @@ def start_match():
               break
         while not input_ok(x):
              x = input(f'{x} is an invallid input. Try again')
-        m.update(x)
+        m.process(x)
             
     
 def input_ok(x):
@@ -28,25 +28,27 @@ def input_ok(x):
     shot = {'v','o','n', 'g','r','l','s','V','k','b', 'j','z','f'}
     direction = {'c','p','n','l','m','d','k'}
     if x[0] == "#" and x[1] in pl:
-          return True
+        return True
+    if x[0] == '!':
+        return True
     if len(x) < 6:
-          print('Input lenght is to short')
-          return False
+        print('Input lenght is to short')
+        return False
     if x[0] not in pl:
-            print(f'Player is incorrect -> got {x[0]}')
-            return False
+        print(f'Player is incorrect -> got {x[0]}')
+        return False
     if x[1] not in cat:
-            print(f'Category is incorrect -> got {x[1]} which is not in {cat}')
-            return False
+        print(f'Category is incorrect -> got {x[1]} which is not in {cat}')
+        return False
     if x[2:4] not in side:
-            print(f'The side is incorrect -> got {x[2:4]} which is not in {side}')
-            return False
+        print(f'The side is incorrect -> got {x[2:4]} which is not in {side}')
+        return False
     if x[4] not in shot:
-            print(f'Shot is incorrect -> got {x[4]} which is not in {shot}')
-            return False
+        print(f'Shot is incorrect -> got {x[4]} which is not in {shot}')
+        return False
     if x[5] not in direction:
-            print(f'Direction is incorrect -> got {x[5]} which is not in {direction}')
-            return False
+        print(f'Direction is incorrect -> got {x[5]} which is not in {direction}')
+        return False
     if x[1] == 'f':
         if len(x) < 10:
             print('Input lenght is to short')

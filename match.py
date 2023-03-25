@@ -2,8 +2,10 @@ import pandas as pd
 from set import *
 from points import *
 from datetime import date
+import openpyxl
 
 class match:
+    type = -1
     #Convention -> player 1 and 3 on the left, player 2 and 4 on the right
     input_map = {'f':'Forced Error', 'u':'Unforced Error', 'w':'Winner'}
     team = {1:0, 2:0, 3:1, 4:1}
@@ -27,6 +29,7 @@ class match:
         self.r = r
         self.players = players
         self.raw_score = []
+        self.raw_input = []
         self.current_set = set()
         self.sets = []
         self.finished = False
@@ -63,16 +66,22 @@ class match:
         return set()
 
     def play_match(self, list):
-        from input import input_ok
         for l in list:
-            if l[0] == "!":
-                pass
-            if l[0] == '#':
-                self.current_set.update_server(int(l[1]))
-            else:
-                while not input_ok(l):
-                    l = input(f'{l} is an invalid input. Please correct it:')
-                self.update(l)
+            self.process(l)
+
+    def process(self, l):
+        from input import input_ok
+        if l[0] == "!":
+            pass
+            self.raw_input.append(l)
+        if l[0] == '#':
+            self.current_set.update_server(int(l[1]))
+            self.raw_input.append(l)
+        else:
+            while not input_ok(l):
+                l = input(f'{l} is an invalid input. Please correct it:')
+            self.raw_input.append(l)
+            self.update(l)
 
     def get_summary(self):
         def color(val):
@@ -123,9 +132,40 @@ class match:
         self.get_det_summary().to_excel(writer,sheet_name='shots_summary')
         self.get_det_summary(dir=True).to_excel(writer,sheet_name='shot_dir_summary')
         writer.close()
+
+    def export_raw(self, file, sheetname='Sheet1'):
         
+        # Attempt to load the existing workbook
+        try:
+            wb = openpyxl.load_workbook(file)
+
+        except FileNotFoundError:
+            # If the file doesn't exist, create a new workbook
+            wb = openpyxl.Workbook()
+
+        # Check if the 'Sheet1' worksheet exists
+        if sheetname in wb.sheetnames:
+            # If it exists, access it for modification
+            ws = wb[sheetname]
+        else:
+            # If it doesn't exist, create a new worksheet
+            ws = wb.active
+            ws.title = sheetname
+
+        r = ws.max_row+1
+        ws.cell(column=1, row=r, value=self.date)
+        ws.cell(column=2, row=r, value=self.tournament)
+        ws.cell(column=3, row=r, value=str(self.r))
+        ws.cell(column=4, row=r, value=str(self.players[0].name))
+        ws.cell(column=5, row=r, value=str(self.players[1].name))
+        ws.cell(column=6, row=r, value=str(self.players[2].name))
+        ws.cell(column=7, row=r, value=str(self.players[3].name))
+        ws.cell(column=8, row=r, value=self.type)
+        ws.cell(column=9, row=r, value=str(','.join(self.raw_input)))
+        wb.save(file)
     
 class match_tie(match):
+    type = 0
     def __init__(self, players, date=date.today(), tournament='practise', r='None') -> None:
         super().__init__(players, date, tournament, r)
     
@@ -137,6 +177,7 @@ class match_tie(match):
 
 
 class match_3_sets(match):
+    type = 1
     def __init__(self, players, date=date.today(), tournament='practise', r='None') -> None:
         super().__init__(players, date, tournament, r)
     
