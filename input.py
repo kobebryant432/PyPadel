@@ -23,6 +23,7 @@ def start_match():
         while not input_ok(x):
              x = input(f'{x} is an invallid input. Try again')
         m.process(x)
+    return m
             
     
 def input_ok(x):

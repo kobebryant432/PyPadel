@@ -2,7 +2,7 @@ import pandas as pd
 from match import *
 from player import player
 import sys
-import sys
+import pickle
 
 class database():
 
@@ -19,7 +19,7 @@ class database():
         sys.stdout = log_file
         df = pd.read_excel(file, **kwargs)
         df.columns= df.columns.str.strip().str.lower()
-        df['match'] = df.apply(lambda row: self.create_match(row), axis=1)
+        df['match'] = df.apply(lambda row: self._create_match(row), axis=1)
         self.matches = df
 
         #Reset log
@@ -32,12 +32,18 @@ class database():
 
     def export_all(self):
         for m in self.matches['match']:
-            p1 = m.players[0].name.replace(' ','')
-            p3 = m.players[3].name.replace(' ','')
-            m.export(f'out/{m.tournament}_{p1}_{p3}.xlsx')
+            m.export()
+    
+    def export_all_raw(self, file, sheetname='Sheet1'):
+        for m in self.matches['match']:
+            m.export_raw(file, sheetname)
+
+    def save_db(self, file):
+        with open(file, 'wb') as outp:  # Overwrites any existing file.
+            pickle.dump(self, outp)
 
     #ToDo -> Make player list in database!
-    def create_match(self, row):
+    def _create_match(self, row):
         pl_name = [row.player_1,row.player_2,row.player_3,row.player_4]
         players = [player(name) for name in pl_name]
         m = match.create(int(row.match_type),players=players, date=row.date, tournament=row.tournament, r=str(row.r))
@@ -46,3 +52,5 @@ class database():
         m.play_match(data)
         return m
     
+    def get_match(self, pos):
+        return self.matches['match'][pos]

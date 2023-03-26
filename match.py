@@ -126,7 +126,11 @@ class match:
         print(f'Set {set} , Game {game}')
         self.sets[set-1].games[game-1].game_summary()
 
-    def export(self, file):
+    def export(self, file=None):
+        if not file:
+            p1 = self.players[0].name.replace(' ','')
+            p3 = self.players[3].name.replace(' ','')
+            file = f'out/{self.tournament}_{p1}_{p3}.xlsx'
         writer = pd.ExcelWriter(file, engine='xlsxwriter')
         self.get_summary().to_excel(writer,sheet_name='match_summary')
         self.get_det_summary().to_excel(writer,sheet_name='shots_summary')
