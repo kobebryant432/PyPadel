@@ -1,20 +1,43 @@
 from input import *
 from database import database
+import pickle
 
-#start_match()
+#Some examples!
+
+#Example 1 - To track a match using python and save result to excel
+
+#m = start_match()
+#Export the match statistics of the analysed match.
+#m.export()
+#Export the 'raw' data of this match to be added to a database input excel later.
+#m.export_raw('in/my_first_match.xlsx')
     
-
-# m = match([player(name) for name in ['Ilse','Fien','Kelly Maene','Elizabeth Lamaire']])
-# m.play_match(['1ubhnn', '1ufhsn', '2whivc', '2wbhvc', '3ffhvc1fhn', '4ubhsn', '4wfhom', '1wbhgc', '3ufhvn', '2ubhgn', '3fhibc2fhn', '3fhisp1fhn', '2ufhgl', '4ubhvn', '4ufhnp', '2ufhvn', '4wbhnc', '1ubhvp', '4ubhrl', '4fhisp1fhn', '3wfhvp', '4uhivp', '3uhivc', '4uhisn', '4ffhvp1fhn', '2ufhlp', '1wfhvm', '4ufhnn', '2ubhnn', '4ubhgn', '4wfhvp', '2wfhvp', '1ufhsl', '3whisp', '4wfhgc', '4ufhvl', '1ufhrn', '2ubhnn', '3whisc', '3ubhnn', '4ufhgn', '3ubhrl', '1ufhgn', '3ufhrl', '2ubhnn', '2ufhvl', '1ufhnc', '4wbhvc', '4ufhgn', '2whivp', '4wfhnc', '2uhisl', '4ufhvp', '1uhivc', '4ubhrl', '3ubhvn', '4ufhvp', '2wbhnc', '4whivc', '4uhivn', '1wfhvm', '1wfhvm', '4fhijm2fhv', '2ufhvn', '2wfhvp', '1whivm', '1ufhnn', '4ufhvn', '4wfhvp', '1fbhvp4bhv', '1ufhnn', '4wfhvc', '2ufhgn', '2whivp', '4ufhvp', '3wfhvc', '3uhivc', '2ubhvl', '4fbhnc2bhn', '3wbhvp', '2ubhrn', '4wfhvp', '2ubhrn', '3ufhrn', '1ufhnn', '4wbhnm', '3wbhvc', '3ufhrn', '2whivp', '4wfhgc', '2ubhnp', '1ubhnv', '3ubhnn', '2ubhrl', '1ufhrn', '3wfhnm', '2ubhll', '3ubhvl', '2ufhvp', '1ufhvl'])
-# df = m.get_summary()
-# m.game_summary(1,7)
-# df1 = m.get_det_summary()
-# df2 = m.get_det_summary(dir=True)
-
-# db = database('test')
-# db.load_db('in/input_clean.xlsx')
+#Example 2 - Loading a db
+# db = database('test') 
+# db.load_db('in/input_clean.xlsx') 
 # db.export_all()
 
-M_1000 = database('P1000 Men')
+# Initialize your database
+M_1000 = database('P1000 Men') 
+# Load the input dataset - note that if there is incorrect input you will need to correct it.
 M_1000.load_db('in/input_clean.xlsx', sheet_name='Heren 1000')
-# M_1000.matches['match'][0].export_raw('in/b2.xlsx')
+
+#Let's say you want to add a match to the db. For example your newly tracked match m:
+#M_1000.add_match(m) # Add match m
+M_1000.add_match(M_1000.matches['match'][0]) # A working example which adds a copy of the first match to the db.
+
+#Save the raw data from your input 
+#-> Good to do if you made corrections or if you added a match. Corrections will be made.
+M_1000.export_all_raw('in/input.xlsx',sheetname='Heren 1000')
+#Export all the analysis of each match in the database.
+M_1000.export_all()
+
+#Another way to save a db is to save the whole db (not only the raw-data), this has the advantage of not having to reload all the input.
+M_1000.save_db('in/m1000.pkl')
+
+#To load a saved db
+with open('in/m1000.pkl','rb') as inp:
+    M_1000 = pickle.load(inp)
+
+#To get a specific match - get the (n-1) th match of the db. Can get last or second last with -1 (-2)
+p = M_1000.get_match(0)
