@@ -19,14 +19,19 @@ def start_match():
     while True:
         x = input()
         if x == 'Q':
-              break
+            break
         while not input_ok(x):
-             x = input(f'{x} is an invallid input. Try again')
+            if x == 'Q':
+                break
+            x = input(f'{x} is an invallid input. Try again')
         m.process(x)
     return m
             
     
 def input_ok(x):
+    if x == "":
+        print(f'No input')
+        return False
     x = x.lower()
     pl = {'1','2','3','4'}
     cat = {'f','u','w'}
