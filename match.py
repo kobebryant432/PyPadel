@@ -107,6 +107,18 @@ class match:
         p = p.style.applymap(color, subset=idx).applymap(color_good, subset=idxg)
         return p
     
+    def set_summary(self):
+        df = pd.DataFrame(self.raw_score, columns=['set','set_score','game','game_score','player','team','category','side','shot_type','direction','raw'])
+        p = pd.pivot_table(df, values='raw',index=['category','team','player'],columns=['set'], aggfunc=['count']).fillna(0).astype(int)
+        for x in p.columns.get_level_values(1):
+            p['avg', x] = p['count',x]/len(self.sets[x-1].games)
+        p = p.rename(columns={x:f'{x} ({self.sets[x-1].score()})' for x in p.columns.get_level_values(1)}).swaplevel(axis=1)
+        tot = p.groupby(level=1, axis=1).sum().astype(int)
+        p[[("Match", col) for col in tot.columns]] = tot
+        p["Match", 'avg'] = p["Match", 'count']/sum([len(x.games) for x in self.sets])
+        p = p.sort_index(axis=1)
+        return p
+
     def get_det_summary(self, dir=False):
         if dir:
             cols = ['set','direction']
@@ -131,11 +143,12 @@ class match:
             p1 = self.players[0].name.replace(' ','')
             p3 = self.players[3].name.replace(' ','')
             file = f'out/{self.tournament}_{p1}_{p3}.xlsx'
-        writer = pd.ExcelWriter(file, engine='xlsxwriter')
-        self.get_summary().to_excel(writer,sheet_name='match_summary')
-        self.get_det_summary().to_excel(writer,sheet_name='shots_summary')
-        self.get_det_summary(dir=True).to_excel(writer,sheet_name='shot_dir_summary')
-        writer.close()
+        
+        with pd.ExcelWriter(file, engine='xlsxwriter') as writer:  
+            self.get_summary().to_excel(writer,sheet_name='match_summary')
+            self.set_summary().to_excel(writer, sheet_name='set_summary')
+            self.get_det_summary().to_excel(writer,sheet_name='shots_summary')
+            self.get_det_summary(dir=True).to_excel(writer,sheet_name='shot_dir_summary') 
 
     def export_raw(self, file, sheetname='Sheet1'):
         
