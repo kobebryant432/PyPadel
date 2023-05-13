@@ -72,9 +72,8 @@ class match:
     def process(self, l):
         from input import input_ok
         if l[0] == "!":
-            pass
             self.raw_input.append(l)
-        if l[0] == '#':
+        elif l[0] == '#':
             self.current_set.update_server(int(l[1]))
             self.raw_input.append(l)
         else:
