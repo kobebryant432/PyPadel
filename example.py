@@ -18,9 +18,9 @@ import pickle
 # db.export_all()
 
 # Initialize your database
-M_1000 = database('P1000 Men') 
-# Load the input dataset - note that if there is incorrect input you will need to correct it.
-M_1000.load_db('in/input_clean.xlsx')
+# M_1000 = database('P1000 Men') 
+# # Load the input dataset - note that if there is incorrect input you will need to correct it.
+# M_1000.load_db('in/input.xlsx')
 
 # #Let's say you want to add a match to the db. For example your newly tracked match m:
 # #M_1000.add_match(m) # Add match m
@@ -36,8 +36,8 @@ M_1000.load_db('in/input_clean.xlsx')
 # M_1000.save_db('in/m1000.pkl')
 
 # #To load a saved db
-# with open('in/m1000.pkl','rb') as inp:
-#     M_1000 = pickle.load(inp)
+with open('in/m1000.pkl','rb') as inp:
+    M_1000 = pickle.load(inp)
 
 # #To get a specific match - get the (n-1) th match of the db. Can get last or second last with -1 (-2)
-# p = M_1000.get_match(0)
+p = M_1000.get_match(0)
