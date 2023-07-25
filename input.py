@@ -36,11 +36,11 @@ def input_ok(x):
     pl = {'1','2','3','4'}
     cat = {'f','u','w'}
     side = {'fh','bh','hi','hd'}
-    shot = {'v','o','n', 'g','r','l','s','V','k','b', 'j','z','f'}
-    direction = {'c','p','n','l','m','d','k'}
+    shot = {'v','o','n', 'g','r','l','s','V','k','b','j','z','f'}
+    direction = {'c','p','n','l','m','d','k','f','g'}
     if x[0] == "#" and x[1] in pl:
         return True
-    if x[0] in ['!','q']:
+    if x[0] == '!':
         return True
     if len(x) < 6:
         print('Input lenght is to short')
@@ -74,4 +74,6 @@ def input_ok(x):
             print(f'Shot of player making the forced error is incorrect -> got {x[9]} which is not in {shot}')
             return False
     return True
+
+
 
