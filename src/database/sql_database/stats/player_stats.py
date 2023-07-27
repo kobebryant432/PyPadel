@@ -19,8 +19,6 @@ class PlayerStats:
                 f"Warning: No matches found for {player_name}. This might be unexpected."
             )
 
-        print(f"Updating matches for {player_name}. Total Matches: {total_matches}")
-
         try:
             with self.conn:
                 updated_rows = self.conn.execute(
@@ -42,8 +40,6 @@ class PlayerStats:
     def update_win_rate(self, player_name):
         # Calculate the win rate using the logic provided
         calculated_win_rate = self.win_rate(player_name)
-
-        print(f"Updating win rate for {player_name}. Win Rate: {calculated_win_rate}")
 
         try:
             with self.conn:
@@ -68,13 +64,6 @@ class PlayerStats:
 
         avg_unforced_errors = stats["avg_unforced_errors_per_game"]
         avg_winners = stats["avg_winners_per_game"]
-
-        print(
-            f"Updating average unforced errors per game for {player_name}. Average: {avg_unforced_errors:.2f}"
-        )
-        print(
-            f"Updating average winners per game for {player_name}. Average: {avg_winners:.2f}"
-        )
 
         try:
             with self.conn:
@@ -166,8 +155,6 @@ class PlayerStats:
             # Get all matches for the player
             matches_data = self.db.match_manager.get_matches(player_name)
 
-        print(f"Found {len(matches_data)} matches for player: {player_name}")
-
         # Initialize total counters
         total_unforced_errors = 0
         total_winners = 0
@@ -191,18 +178,11 @@ class PlayerStats:
                 f"Match ID: {match_data['id']}, Unforced errors in this match: {stats['unforced_errors']}, Winners in this match: {stats['winners']}"
             )
 
-        print(f"Total unforced errors: {total_unforced_errors}")
-        print(f"Total winners: {total_winners}")
-        print(f"Total points lost: {total_points_lost}")
-
         # Calculate average unforced errors and winners per game
         avg_unforced_errors_per_game = total_unforced_errors / (
             total_points_lost / 2.75
         )
         avg_winners_per_game = total_winners / (total_points_lost / 2.75)
-
-        print(f"Average unforced errors per game: {avg_unforced_errors_per_game:.2f}")
-        print(f"Average winners per game: {avg_winners_per_game:.2f}")
 
         return {
             "avg_unforced_errors_per_game": avg_unforced_errors_per_game,
