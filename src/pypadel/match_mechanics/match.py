@@ -42,11 +42,12 @@ class Match:
     def __str__(self) -> str:
         return f"A {self.r} match in {self.tournament} on {self.date} between {self.players[0].name}/{self.players[1].name} vs {self.players[2].name}/{self.players[3].name}"
 
-    def update(self, x):
+    def update(self, x, silent=False):
         if x[1] == "f":
             p = Forced_winner(x)
         else:
             p = Point(x)
+
         self.raw_score.append(
             (
                 len(self.sets) + 1,
@@ -62,14 +63,17 @@ class Match:
                 p,
             )
         )
+
         team_action = Match.team[int(x[0])]
         point_winner = (team_action + Match.team_map[x[1]]) % 2
         self.current_set.update(point_winner + 1, p)
+
         if self.current_set.finished:
             self.sets.append(self.current_set)
             self.current_set = self.new_set()
-            for i, se in enumerate(self.sets):
-                print(i, se)
+            if not silent:  # Only print if silent mode is not enabled
+                for i, se in enumerate(self.sets):
+                    print(i, se)
 
     def new_set(self):
         return set()

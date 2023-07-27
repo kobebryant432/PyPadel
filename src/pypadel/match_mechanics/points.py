@@ -28,15 +28,27 @@ class Point:
         "f": "fence",
     }
 
+    # New reverse shot dictionary
+    reverse_shot = {value: key for key, value in shot.items()}
+
     def __init__(self, string) -> None:
         self.player = int(string[0])
         self.category = Point.cat[string[1]]
         self.side = Point.side[string[2:4]]
+
         # Dubbel use of letter v -> if high v = V = Vibora else it is a volley (v)
         if string[2:4] in ["hi", "hd"] and string[4] == "v":
             self.shot_type = self.shot["V"]
         else:
-            self.shot_type = self.shot[string[4]]
+            # If the shot type from string is not in shot dictionary
+            if string[4] not in self.shot:
+                if string[4:] in self.reverse_shot:
+                    self.shot_type = string[4:]
+                else:
+                    raise ValueError(f"Invalid shot type: {string[4:]}")
+            else:
+                self.shot_type = self.shot[string[4]]
+
         self.direction = Point.direction[string[5]]
         self.raw = string
 

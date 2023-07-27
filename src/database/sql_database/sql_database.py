@@ -107,13 +107,21 @@ class ExcelDataManager:
             self.db.player_manager.update_player_stats(player_name)
 
     def _create_match(self, row, cat):
-        # Convert Timestamp to a datetime.date object
-        converted_date = row.date.to_pydatetime().date()
+        # Step 1: Attempt to Convert Timestamp to a datetime.date object
+        try:
+            converted_date = row.date.to_pydatetime().date()
+        except AttributeError:
+            print(
+                f"Error: Could not convert the date for the match with details: {row}. Using today's date as fallback."
+            )
+            from datetime import date
+
+            converted_date = date.today()
 
         pl_name = [row.player_1, row.player_2, row.player_3, row.player_4]
         players = [Player(name) for name in pl_name]
 
-        # Step 1: Add players to the database
+        # Step 2: Add players to the database
         for player_obj in players:
             self.db.player_manager.add_player(
                 player_obj.name,
@@ -132,5 +140,5 @@ class ExcelDataManager:
         m.play_match(data)
         m.sets_score = m.get_set_scores()
 
-        # Step 2: Add the match to the database
+        # Step 3: Add the match to the database
         self.db.match_manager.add_match(m, cat)
