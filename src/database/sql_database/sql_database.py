@@ -5,6 +5,7 @@ import pandas as pd
 from pypadel import Match, Player
 from .schemas import MATCHES_TABLE, PLAYERS_TABLE
 from .crud import MatchCRUD, PlayerCRUD
+from .stats import MatchStats
 
 
 class SqlDatabase:
@@ -44,6 +45,13 @@ class SqlDatabase:
     def load_db(self, file, **kwargs):
         data_manager = ExcelDataManager(file, self)
         data_manager.load_data(**kwargs)
+
+    def get_match_stats(self, match_id, img_export=False):
+        match_stats_instance = MatchStats(self.conn, match_id)
+        if img_export:
+            summary = match_stats_instance.get_match_summary()
+            return match_stats_instance.export_summary_to_image(summary)
+        return match_stats_instance.get_match_summary()
 
     def export_all(self):
         try:
