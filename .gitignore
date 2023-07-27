@@ -6,7 +6,7 @@ __pycache__
 *.pyc
 
 #Output data
-*.xlsx
+# *.xlsx
 
 #Input files
 in/
@@ -16,3 +16,5 @@ out/
 
 #log files
 *.log
+.vscode/settings.json
+.gitignore
