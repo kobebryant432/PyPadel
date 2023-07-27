@@ -9,8 +9,17 @@ class MatchCRUD:
         self.conn = db.conn
 
     def add_match(self, m, cat):  # Add a new argument for sheet name
+        # Add players to the database here
+        for player in m.players:
+            self.db.player_manager.add_player(
+                player.name,
+                "right"
+                if player.name in [m.players[0].name, m.players[2].name]
+                else "left",
+                cat,
+            )
+
         if not self.match_exists(m):
-            # Include the sheet name in the values to insert
             values_to_insert = (
                 m.date,
                 m.tournament,
@@ -34,7 +43,6 @@ class MatchCRUD:
                     """,
                         values_to_insert,
                     )
-                    # self.update_player_stats(m)
                     # Update player stats for each player involved in the match
                     for player in m.players:
                         self.db.player_manager.update_player_stats(player.name)
@@ -73,6 +81,20 @@ class MatchCRUD:
         except sqlite3.Error as e:
             print(f"An error occurred: {e.args[0]}")
             return []
+
+    def get_most_recent_match(self):
+        """
+        Retrieves the most recently added match from the matches table.
+        """
+        try:
+            with contextlib.closing(self.conn.cursor()) as cursor, self.conn:
+                cursor.execute("SELECT * FROM matches ORDER BY id DESC LIMIT 1")
+                match_record = cursor.fetchone()
+                if match_record:
+                    return self._record_to_match_object(match_record)
+                return None
+        except sqlite3.Error as e:
+            print(f"An error occurred: {e.args[0]}")
 
     def _record_to_match_object(self, record):
         return Match.from_record(record)

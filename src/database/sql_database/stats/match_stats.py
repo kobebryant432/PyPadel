@@ -134,7 +134,7 @@ class MatchStats:
         return stats
 
     def export_summary_to_image(
-        self, summary, template_path="template.png", output_path=None
+        self, summary, template_path="data/img/template.png", output_path=None
     ):
         # Load the template
         img = Image.open(template_path)

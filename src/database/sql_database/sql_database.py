@@ -46,6 +46,9 @@ class SqlDatabase:
         data_manager = ExcelDataManager(file, self)
         data_manager.load_data(**kwargs)
 
+    def add_match(self, m, cat):
+        self.match_manager.add_match(m, cat)
+
     def get_match_stats(self, match_id, img_export=False):
         match_stats_instance = MatchStats(self.conn, match_id)
         if img_export:
@@ -64,6 +67,33 @@ class SqlDatabase:
         except sqlite3.Error as e:
             print(f"An error occurred: {e.args[0]}")
             raise
+
+    def export_raw(self, file: str = None) -> None:
+        """Export raw match and player data to an Excel file."""
+        if not file:
+            file = f"database_export_{self.db_name.replace('.db', '')}.xlsx"
+
+        # Fetch match data
+        matches_df = self.table_to_dataframe("matches")
+
+        # Fetch player data
+        players_df = self.table_to_dataframe("players")
+
+        with pd.ExcelWriter(file, engine="xlsxwriter") as writer:
+            matches_df.to_excel(writer, sheet_name="Matches", index=False)
+            players_df.to_excel(writer, sheet_name="Players", index=False)
+
+    def open_database(self):
+        """Reopen the database connection if it's closed."""
+        if self.conn is None or self.conn.closed:
+            self.conn = sqlite3.connect(self.db_name)
+            self.conn.row_factory = sqlite3.Row
+
+    def close(self):
+        """Close the database connection."""
+        if self.conn:
+            self.conn.close()
+            print("Database connection closed.")
 
 
 class SqlTable:
@@ -129,14 +159,6 @@ class ExcelDataManager:
         pl_name = [row.player_1, row.player_2, row.player_3, row.player_4]
         players = [Player(name) for name in pl_name]
 
-        # Step 2: Add players to the database
-        for player_obj in players:
-            self.db.player_manager.add_player(
-                player_obj.name,
-                "right" if player_obj.name in [row.player_1, row.player_3] else "left",
-                cat,
-            )
-
         m = Match.create(
             int(row.match_type),
             players=players,
@@ -148,5 +170,5 @@ class ExcelDataManager:
         m.play_match(data)
         m.sets_score = m.get_set_scores()
 
-        # Step 3: Add the match to the database
+        # Step 2: Add the match to the database
         self.db.match_manager.add_match(m, cat)
