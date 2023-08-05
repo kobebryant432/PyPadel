@@ -156,6 +156,17 @@ class ExcelDataManager:
 
             converted_date = date.today()
 
+        # Check if adv_game is present, if not default to False
+        if "adv_game" in row:
+            if isinstance(row.adv_game, str):
+                adv_game = row.adv_game.lower() == "true"
+            else:
+                adv_game = bool(row.adv_game)  # Convert to bool if it's not a string
+        else:
+            adv_game = False
+
+        print(f"Creating match with details: {row}")
+
         pl_name = [row.player_1, row.player_2, row.player_3, row.player_4]
         players = [Player(name) for name in pl_name]
 
@@ -165,6 +176,7 @@ class ExcelDataManager:
             date=converted_date,
             tournament=row.tournament,
             r=str(row.r),
+            adv_game=adv_game,
         )
         data = [x.strip(" ") for x in row.data.split(",")]
         m.play_match(data)
