@@ -1,6 +1,7 @@
 import os #nopep8
 import sys #nopep8
 from pathlib import Path #nopep8
+import builtins
 
 # Add the 'src' directory to sys.path
 current_working_directory = os.getcwd()  # Get the current working directory
@@ -9,13 +10,26 @@ src_path = (
 )  # Construct the path to the 'src' directory
 sys.path.append(str(src_path))  # Add 'src' directory to sys.path
 
-from pypadel.input import start_match
+from pypadel import *
+from database import *
+
+# add a data path
+db_path = Path(current_working_directory) / "data" / "db"
+xlsx_path = Path(current_working_directory) / "data" / "xlsx"
+
+db = SqlDatabase.init_from_existing(db_filename=db_path/"test.db")
+
+
+
 
 m = start_match()
 # Export the match statistics of the analysed match.
 m.export()
 # # Export the 'raw' data of this match to be added to a database input excel later.
-m.export_raw(file= 'in/local_inputs.xlsx')
+# m.export_raw(file= 'in/local_inputs.xlsx')
+db.add_match(m=m, cat=builtins.input('Fill in the Category: '))
+db.export_raw()
+db.close()
     
 #Example 2 - Loading a db
 # db = database('test') 4ubhnl
