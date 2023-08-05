@@ -27,7 +27,12 @@ class Match:
         return MESSAGE_TYPE_TO_CLASS_MAP[message_type](*args, **kwargs)
 
     def __init__(
-        self, players, date=date.today(), tournament="practice", r="None", adv_game=False
+        self,
+        players,
+        date=date.today(),
+        tournament="practice",
+        r="None",
+        adv_game=False,
     ) -> None:
         self.date = date
         self.tournament = tournament
@@ -127,7 +132,6 @@ class Match:
 
     @classmethod
     def from_record(cls, record):
-        # Extract data from the record tuple including the cat
         (
             id,
             date,
@@ -141,24 +145,31 @@ class Match:
             match_type,
             raw_input,
             cat,
+            adv_game,
         ) = record
 
-        # Convert raw_input string to a list
         raw_input_data = raw_input.split(",")
 
-        # Create player objects
+        # Check if adv_game is a string, if not convert it to bool, default to False if not present
+        if isinstance(adv_game, str):
+            adv_game = adv_game.lower() == "true"
+        elif adv_game is not None:
+            adv_game = bool(adv_game)
+        else:
+            adv_game = False
+
         player_1 = Player(player_1_name)
         player_2 = Player(player_2_name)
         player_3 = Player(player_3_name)
         player_4 = Player(player_4_name)
 
-        # Create and return the match object
         m = cls.create(
             int(match_type),
             players=[player_1, player_2, player_3, player_4],
             date=date,
             tournament=tournament,
             r=r,
+            adv_game=adv_game,
         )
         m.play_match(raw_input_data)
 
@@ -375,7 +386,12 @@ class Match_tie(Match):
     type = 0
 
     def __init__(
-        self, players, date=date.today(), tournament="practise", r="None", adv_game=False
+        self,
+        players,
+        date=date.today(),
+        tournament="practise",
+        r="None",
+        adv_game=False,
     ) -> None:
         super().__init__(players, date, tournament, r, adv_game=adv_game)
 
@@ -390,7 +406,12 @@ class Match_3_sets(Match):
     type = 1
 
     def __init__(
-        self, players, date=date.today(), tournament="practise", r="None", adv_game=False
+        self,
+        players,
+        date=date.today(),
+        tournament="practise",
+        r="None",
+        adv_game=False,
     ) -> None:
         super().__init__(players, date, tournament, r, adv_game=adv_game)
 

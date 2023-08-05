@@ -32,14 +32,15 @@ class MatchCRUD:
                 m.type,
                 ",".join(m.raw_input),
                 cat,
+                m.adv_game,  # Add the adv_game attribute here
             )
 
             try:
                 with contextlib.closing(self.conn.cursor()) as cursor, self.conn:
                     cursor.execute(
                         """
-                        INSERT OR IGNORE INTO matches (date, tournament, r, player_1, player_2, sets_score, player_3, player_4, match_type, raw_input, cat)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        INSERT OR IGNORE INTO matches (date, tournament, r, player_1, player_2, sets_score, player_3, player_4, match_type, raw_input, cat, adv_game)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                         values_to_insert,
                     )
