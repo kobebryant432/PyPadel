@@ -19,6 +19,8 @@ class MatchCRUD:
                 cat,
             )
 
+        m.sets_score = m.get_set_scores()
+
         if not self.match_exists(m):
             values_to_insert = (
                 m.date,
