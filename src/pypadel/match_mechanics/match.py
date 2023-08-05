@@ -379,6 +379,7 @@ class Match:
         ws.cell(column=7, row=r, value=str(self.players[3].name))
         ws.cell(column=8, row=r, value=self.type)
         ws.cell(column=9, row=r, value=str(",".join(self.raw_input)))
+        ws.cell(column=10, row=r, value=self.adv_game)
         wb.save(file)
 
 
