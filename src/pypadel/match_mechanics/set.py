@@ -68,3 +68,36 @@ class Tiebreak_set(Set):
             self.winner = self.current_game.winner
             self.finished = True
             print(self)
+
+class Proset(Set):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def update(self, point_winner, p):
+        self.current_game.update(point_winner, p)
+        if self.current_game.finished:
+            winner = self.current_game.winner
+            if winner == 1:
+                self.score_t1 += 1
+            else:
+                self.score_t2 += 1
+            self.games.append(self.current_game)
+            if self.score_t1 == 8 and self.score_t2 == 8:
+                self.current_game = Tiebreak()
+            else:
+                self.current_game = Game()
+            print(self)
+            self.is_fininshed()
+
+    def is_fininshed(self):
+        t1 = self.score_t1
+        t2 = self.score_t2
+        if (max(t1, t2) > 7 and max(t2, t1) - min(t2, t1) > 1) or (max(t1, t2) == 9):
+            self.finished = True
+            if t1 > t2:
+                self.winner = 1
+            if t2 > t1:
+                self.winner = 2
+
+    def score(self):
+        return f"{self.score_t1}-{self.score_t2}"

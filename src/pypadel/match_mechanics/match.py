@@ -19,6 +19,7 @@ class Match:
         MESSAGE_TYPE_TO_CLASS_MAP = {
             0: Match_tie,
             1: Match_3_sets,
+            2: Match_Proset,
         }
 
         if message_type not in MESSAGE_TYPE_TO_CLASS_MAP:
@@ -395,3 +396,14 @@ class Match_3_sets(Match):
 
     def new_set(self):
         return Set()
+
+class Match_Proset(Match):
+    type = 2
+
+    def __init__(
+        self, players, date=date.today(), tournament="practise", r="None"
+    ) -> None:
+        super().__init__(players, date, tournament, r)
+
+    def new_set(self):
+        return Proset()
