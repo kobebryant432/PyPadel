@@ -2,10 +2,14 @@ from .game import *
 
 
 class Set:
-    def __init__(self) -> None:
+    def __init__(self, adv_game=False) -> None:
         self.score_t1 = 0
         self.score_t2 = 0
-        self.current_game = Game()
+        if adv_game:
+            self.current_game = Adv_game()
+        else:
+            self.current_game = Game()
+        self.adv_game = adv_game
         self.games = []
         self.serve_order = []
         self.finished = False
@@ -33,7 +37,10 @@ class Set:
             if self.score_t1 == 6 and self.score_t2 == 6:
                 self.current_game = Tiebreak()
             else:
-                self.current_game = Game()
+                if self.adv_game:
+                    self.current_game = Adv_game()
+                else:
+                    self.current_game = Game()
             print(self)
             self.is_fininshed()
 

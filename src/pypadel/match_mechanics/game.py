@@ -9,16 +9,16 @@ class Game:
 
     def __str__(self) -> str:
         if self.finished:
-            return f"Team {self.winner} won the game - {Game.sc_tr[self.score_t1]}-{Game.sc_tr[self.score_t2]}"
+            return f"Team {self.winner} won the game - {self.score}"
         elif self.score_t1 == 3 and self.score_t2 == 3:
             return "Golden Point!"
         else:
             return (
-                f"Game score is {Game.sc_tr[self.score_t1]}-{Game.sc_tr[self.score_t2]}"
+                f"Game score is {self.score}"
             )
 
     def update(self, team, point):
-        self.points[self.score()] = point
+        self.points[self.score] = point
         if not self.finished:
             if team == 1:
                 self.score_t1 += 1
@@ -39,6 +39,7 @@ class Game:
             self.winner = 2
             self.finished = True
 
+    @property
     def score(self):
         return f"{Game.sc_tr[self.score_t1]}-{Game.sc_tr[self.score_t2]}"
 
@@ -66,5 +67,41 @@ class Tiebreak(Game):
             self.winner = 2
             self.finished = True
 
+    @property
     def score(self):
         return f"{self.score_t1}-{self.score_t2}"
+    
+class Adv_game(Game):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def is_finished(self):
+        if self.score_t1 >= 4 and self.score_t1 - self.score_t2 > 1:
+            self.winner = 1
+            self.finished = True
+        if self.score_t2 >= 4 and self.score_t2 - self.score_t1 > 1:
+            self.winner = 2
+            self.finished = True
+
+    def __str__(self) -> str:
+        if self.finished:
+            return f"Team {self.winner} won the game - {self.score}"
+        else:
+            return (
+                f"Game score is {self.score}"
+            )
+
+    @property
+    def score(self):
+        if self.score_t1 < 4 and self.score_t2 < 4:
+            return f"{Game.sc_tr[self.score_t1]}-{Game.sc_tr[self.score_t2]}"
+        elif self.score_t1 - self.score_t2 ==1:
+            return "Adv-40"
+        elif self.score_t2 - self.score_t1 ==1:
+            return "40-Adv"
+        elif self.score_t1 > self.score_t2:
+            return "Game-40"
+        elif self.score_t2 > self.score_t1:
+            return "40-Game"
+        else:
+            return "40-40"

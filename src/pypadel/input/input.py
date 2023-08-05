@@ -6,6 +6,7 @@ def start_match():
     date = input("Date of the Tournament: ")
     tournament = input("Tournament name: ")
     r = input("Round :")
+    adv_game = input("Are the games played with advantage - (Y) yes or (N) no:") in ['y','Y']
     p1 = Player(input("Name player 1: "))
     p2 = Player(input("Name player 2: "))
     p3 = Player(input("Name player 3: "))
@@ -15,7 +16,7 @@ def start_match():
     players = [p for p in [p1, p2, p3, p4]]
 
     m = Match.create(
-        int(m_type), players=players, date=date, tournament=tournament, r=r
+        int(m_type), players=players, date=date, tournament=tournament, r=r, adv_game=adv_game
     )
 
     while True:

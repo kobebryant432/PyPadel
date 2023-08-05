@@ -27,7 +27,7 @@ class Match:
         return MESSAGE_TYPE_TO_CLASS_MAP[message_type](*args, **kwargs)
 
     def __init__(
-        self, players, date=date.today(), tournament="practice", r="None"
+        self, players, date=date.today(), tournament="practice", r="None", adv_game=False
     ) -> None:
         self.date = date
         self.tournament = tournament
@@ -35,7 +35,8 @@ class Match:
         self.players = players
         self.raw_score = []
         self.raw_input = []
-        self.current_set = Set()
+        self.adv_game = adv_game
+        self.current_set = Set(adv_game=adv_game)
         self.sets = []
         self.finished = False
 
@@ -53,7 +54,7 @@ class Match:
                 len(self.sets) + 1,
                 self.current_set.score(),
                 len(self.current_set.games) + 1,
-                self.current_set.current_game.score(),
+                self.current_set.current_game.score,
                 self.players[p.player - 1].name,
                 Match.team[p.player],
                 p.category,
@@ -76,7 +77,7 @@ class Match:
                     print(i, se)
 
     def new_set(self):
-        return set()
+        return Set(adv_game=self.adv_game)
 
     def get_set_scores(self):
         return ", ".join([s.score() for s in self.sets])
@@ -374,24 +375,24 @@ class Match_tie(Match):
     type = 0
 
     def __init__(
-        self, players, date=date.today(), tournament="practise", r="None"
+        self, players, date=date.today(), tournament="practise", r="None", adv_game=False
     ) -> None:
-        super().__init__(players, date, tournament, r)
+        super().__init__(players, date, tournament, r, adv_game=adv_game)
 
     def new_set(self):
         if len(self.sets) == 2:
             return Tiebreak_set(target=10)
         else:
-            return Set()
+            return Set(adv_game=self.adv_game)
 
 
 class Match_3_sets(Match):
     type = 1
 
     def __init__(
-        self, players, date=date.today(), tournament="practise", r="None"
+        self, players, date=date.today(), tournament="practise", r="None", adv_game=False
     ) -> None:
-        super().__init__(players, date, tournament, r)
+        super().__init__(players, date, tournament, r, adv_game=adv_game)
 
     def new_set(self):
-        return Set()
+        return Set(adv_game=self.adv_game)
