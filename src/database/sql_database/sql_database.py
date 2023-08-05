@@ -2,6 +2,7 @@ import builtins
 import sqlite3
 import contextlib
 import pandas as pd
+from pathlib import Path
 from pypadel import Match, Player
 from .schemas import MATCHES_TABLE, PLAYERS_TABLE
 from .crud import MatchCRUD, PlayerCRUD
@@ -71,7 +72,7 @@ class SqlDatabase:
     def export_raw(self, file: str = None) -> None:
         """Export raw match and player data to an Excel file."""
         if not file:
-            file = f"database_export_{self.db_name.replace('.db', '')}.xlsx"
+            file = f"database_export_{Path(self.db_name).stem}.xlsx"
 
         # Fetch match data
         matches_df = self.table_to_dataframe("matches")
@@ -165,8 +166,6 @@ class ExcelDataManager:
         else:
             adv_game = False
 
-        print(f"Creating match with details: {row}")
-
         pl_name = [row.player_1, row.player_2, row.player_3, row.player_4]
         players = [Player(name) for name in pl_name]
 
@@ -180,7 +179,7 @@ class ExcelDataManager:
         )
         data = [x.strip(" ") for x in row.data.split(",")]
         m.play_match(data)
-        m.sets_score = m.get_set_scores()
+        # m.sets_score = m.get_set_scores()
 
         # Step 2: Add the match to the database
         self.db.match_manager.add_match(m, cat)
