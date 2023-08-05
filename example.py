@@ -1,10 +1,15 @@
-from input import *
-from database import database
-import pickle
+import os #nopep8
+import sys #nopep8
+from pathlib import Path #nopep8
 
-#Some examples!
+# Add the 'src' directory to sys.path
+current_working_directory = os.getcwd()  # Get the current working directory
+src_path = (
+    Path(current_working_directory) / "src"
+)  # Construct the path to the 'src' directory
+sys.path.append(str(src_path))  # Add 'src' directory to sys.path
 
-#Example 1 - To track a match using python and save result to excel
+from pypadel.input import start_match
 
 m = start_match()
 # Export the match statistics of the analysed match.
