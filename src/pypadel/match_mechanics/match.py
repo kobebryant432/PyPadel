@@ -36,7 +36,7 @@ class Match:
         self.players = players
         self.raw_score = []
         self.raw_input = []
-        self.current_set = Set()
+        self.current_set = self.new_set()
         self.sets = []
         self.finished = False
 
@@ -404,6 +404,7 @@ class Match_Proset(Match):
         self, players, date=date.today(), tournament="practise", r="None"
     ) -> None:
         super().__init__(players, date, tournament, r)
+        self.current_set = Proset()
 
     def new_set(self):
         return Proset()

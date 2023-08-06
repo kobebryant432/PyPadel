@@ -92,7 +92,7 @@ class Proset(Set):
     def is_fininshed(self):
         t1 = self.score_t1
         t2 = self.score_t2
-        if (max(t1, t2) > 7 and max(t2, t1) - min(t2, t1) > 1) or (max(t1, t2) == 9):
+        if max(t1, t2) == 9:
             self.finished = True
             if t1 > t2:
                 self.winner = 1
