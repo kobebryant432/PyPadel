@@ -32,7 +32,12 @@ class Point:
     reverse_shot = {value: key for key, value in shot.items()}
 
     def __init__(self, string) -> None:
-        self.player = int(string[0])
+        player_index = self._find_first_digit(string)
+        if player_index is None:
+            print(f"Skipping point, no valid player found in string: {string}")
+            return
+        else:
+            self.player = int(string[player_index])
         self.category = Point.cat[string[1]]
         self.side = Point.side[string[2:4]]
 
@@ -54,6 +59,13 @@ class Point:
 
     def __str__(self) -> str:
         return f"Player {self.player} made a {self.category} on a {self.side} {self.shot_type} in the {self.direction}"
+
+    @staticmethod
+    def _find_first_digit(string):
+        for i, char in enumerate(string):
+            if char.isdigit():
+                return i
+        return None
 
 
 class Winner(Point):
