@@ -32,40 +32,38 @@ class Point:
     reverse_shot = {value: key for key, value in shot.items()}
 
     def __init__(self, string) -> None:
-        player_index = self._find_first_digit(string)
-        if player_index is None:
-            print(f"Skipping point, no valid player found in string: {string}")
-            return
-        else:
-            self.player = int(string[player_index])
-        self.category = Point.cat[string[1]]
-        self.side = Point.side[string[2:4]]
+        # Initialize all attributes with None or default values
+        self.player = None
+        self.category = None
+        self.side = None
+        self.shot_type = None
+        self.direction = None
 
-        # Dubbel use of letter v -> if high v = V = Vibora else it is a volley (v)
-        if string[2:4] in ["hi", "hd"] and string[4] == "v":
-            self.shot_type = self.shot["V"]
+        # Look for the player identifier
+        if string[0] == "#":
+            self.player = int(string[1])
         else:
-            # If the shot type from string is not in shot dictionary
-            if string[4] not in self.shot:
-                if string[4:] in self.reverse_shot:
-                    self.shot_type = string[4:]
-                else:
-                    raise ValueError(f"Invalid shot type: {string[4:]}")
+            self.player = int(string[0])
+            self.category = Point.cat[string[1]]
+            self.side = Point.side[string[2:4]]
+            # Handle shot type
+            if string[2:4] in ["hi", "hd"] and string[4] == "v":
+                self.shot_type = self.shot["V"]
             else:
-                self.shot_type = self.shot[string[4]]
+                if string[4] not in self.shot:
+                    if string[4:] in self.reverse_shot:
+                        self.shot_type = string[4:]
+                    else:
+                        raise ValueError(f"Invalid shot type: {string[4:]}")
+                else:
+                    self.shot_type = self.shot[string[4]]
+            self.direction = Point.direction[string[5]]
 
-        self.direction = Point.direction[string[5]]
+        # raw string
         self.raw = string
 
     def __str__(self) -> str:
         return f"Player {self.player} made a {self.category} on a {self.side} {self.shot_type} in the {self.direction}"
-
-    @staticmethod
-    def _find_first_digit(string):
-        for i, char in enumerate(string):
-            if char.isdigit():
-                return i
-        return None
 
 
 class Winner(Point):
