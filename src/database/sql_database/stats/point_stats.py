@@ -286,6 +286,9 @@ class PointStatistics:
                     is_player_in_team_1 = player_team_number in [1, 2]
 
                     for raw_point in raw_input:
+                        # Check if the first character of raw_point is a digit
+                        if not raw_point[0].isdigit():
+                            continue
                         point_instance = Point(raw_point)
                         self._process_point(
                             point_instance,
