@@ -1,4 +1,33 @@
 class Point:
+    """Class to represent a point in a game.
+
+    Parameters
+    ----------
+    string : str
+        A string containing information about the point.
+
+    Attributes
+    ----------
+    player : int
+        The player number associated with the point.
+    category : str
+        The category of the last shot of the point.
+    side : str
+        The side where the last shot of the point was played.
+    shot_type : str
+        The type shot the the last shot of the point was.
+    direction : str
+        The direction of the last shot of the point.
+    raw : str
+        The raw string representation of the point.
+
+    Notes
+    -----
+    - This class is designed to process a specific format of string input to extract information about a point in a game.
+    - The `cat`, `side`, `shot`, and `direction` attributes are dictionaries mapping specific codes to their corresponding values.
+    - If the shot type is not found in the `shot` dictionary, a ValueError is raised.
+    """
+
     cat = {"f": "Forced Winner", "u": "Unforced Error", "w": "Winner"}
     side = {"fh": "Forehand", "bh": "Backhand", "hi": "High", "hd": "High defense"}
     shot = {
@@ -31,12 +60,21 @@ class Point:
     # New reverse shot dictionary
     reverse_shot = {value: key for key, value in shot.items()}
 
-    def __init__(self, string) -> None:
+    def __init__(self, string: str) -> None:
+        """
+        Initialize a Point object from a string.
+
+        Parameters
+        ----------
+        string : str
+            A string containing information about the end of the point.
+        """
+
         self.player = int(string[0])
         self.category = Point.cat[string[1]]
         self.side = Point.side[string[2:4]]
 
-        # Dubbel use of letter v -> if high v = V = Vibora else it is a volley (v)
+        # Dubbel use of letter v -> if high v than it is a Vibora (V) else it is a volley (v)
         if string[2:4] in ["hi", "hd"] and string[4] == "v":
             self.shot_type = self.shot["V"]
         else:
