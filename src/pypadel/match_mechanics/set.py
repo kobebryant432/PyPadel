@@ -1,4 +1,4 @@
-from match_mechanics.game import Adv_game, Game, Tiebreak
+from .game import Adv_game, Game, Tiebreak
 
 
 class Set:
