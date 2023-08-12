@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
-from .set import *
-from .points import *
-from .player import *
+from .set import Set, Proset, Tiebreak_set
+from .points import Point, Forced_winner
+from .player import Player
 from datetime import date
 import openpyxl
 
@@ -19,6 +19,7 @@ class Match:
         MESSAGE_TYPE_TO_CLASS_MAP = {
             0: Match_tie,
             1: Match_3_sets,
+            2: Match_Proset,
         }
 
         if message_type not in MESSAGE_TYPE_TO_CLASS_MAP:
@@ -41,7 +42,7 @@ class Match:
         self.raw_score = []
         self.raw_input = []
         self.adv_game = adv_game
-        self.current_set = Set(adv_game=adv_game)
+        self.current_set = self.new_set()
         self.sets = []
         self.finished = False
 
@@ -386,14 +387,7 @@ class Match:
 class Match_tie(Match):
     type = 0
 
-    def __init__(
-        self,
-        players,
-        date=date.today(),
-        tournament="practise",
-        r="None",
-        adv_game=False,
-    ) -> None:
+    def __init__(self, players, date=date.today(), tournament="practise", r="None", adv_game=False) -> None:
         super().__init__(players, date, tournament, r, adv_game=adv_game)
 
     def new_set(self):
@@ -406,15 +400,17 @@ class Match_tie(Match):
 class Match_3_sets(Match):
     type = 1
 
-    def __init__(
-        self,
-        players,
-        date=date.today(),
-        tournament="practise",
-        r="None",
-        adv_game=False,
-    ) -> None:
+    def __init__(self, players, date=date.today(), tournament="practise", r="None", adv_game=False) -> None:
         super().__init__(players, date, tournament, r, adv_game=adv_game)
 
     def new_set(self):
         return Set(adv_game=self.adv_game)
+
+class Match_Proset(Match):
+    type = 2
+
+    def __init__(self, players, date=date.today(), tournament="practise", r="None",adv_game=True) -> None:
+        super().__init__(players, date, tournament, r, adv_game=adv_game)
+
+    def new_set(self):
+        return Proset()
