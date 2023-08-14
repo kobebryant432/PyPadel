@@ -3,13 +3,12 @@ import numpy as np
 from .set import Set, Proset, Tiebreak_set
 from .points import Point, Forced_winner
 from .player import Player
-from datetime import date
+from datetime import date, datetime
 import openpyxl
 
 
 class Match:
     type = -1
-    # Convention -> player 1 and 3 on the left, player 2 and 4 on the right -> seems to be wrong
     input_map = {"f": "Forced Winner", "u": "Unforced Error", "w": "Winner"}
     team = {1: 0, 2: 0, 3: 1, 4: 1}
     team_map = {"w": 0, "f": 0, "u": 1}
@@ -35,15 +34,25 @@ class Match:
         r="None",
         adv_game=False,
     ) -> None:
-        self.date = date
+        # Ensure date is a date object and in the consistent format
+        if isinstance(date, str):
+            try:
+                self.date = datetime.strptime(date, "%Y-%m-%d").date()
+            except ValueError:
+                raise ValueError(
+                    f"Invalid date format for {date}. Expected format: YYYY-MM-DD"
+                )
+        else:
+            self.date = date
+
         self.tournament = tournament
         self.r = r
         self.players = players
         self.raw_score = []
         self.raw_input = []
         self.adv_game = adv_game
+        self.sets = []  # changed order of this operation
         self.current_set = self.new_set()
-        self.sets = []
         self.finished = False
 
     def __str__(self) -> str:
@@ -387,7 +396,14 @@ class Match:
 class Match_tie(Match):
     type = 0
 
-    def __init__(self, players, date=date.today(), tournament="practise", r="None", adv_game=False) -> None:
+    def __init__(
+        self,
+        players,
+        date=date.today(),
+        tournament="practise",
+        r="None",
+        adv_game=False,
+    ) -> None:
         super().__init__(players, date, tournament, r, adv_game=adv_game)
 
     def new_set(self):
@@ -400,16 +416,26 @@ class Match_tie(Match):
 class Match_3_sets(Match):
     type = 1
 
-    def __init__(self, players, date=date.today(), tournament="practise", r="None", adv_game=False) -> None:
+    def __init__(
+        self,
+        players,
+        date=date.today(),
+        tournament="practise",
+        r="None",
+        adv_game=False,
+    ) -> None:
         super().__init__(players, date, tournament, r, adv_game=adv_game)
 
     def new_set(self):
         return Set(adv_game=self.adv_game)
 
+
 class Match_Proset(Match):
     type = 2
 
-    def __init__(self, players, date=date.today(), tournament="practise", r="None",adv_game=True) -> None:
+    def __init__(
+        self, players, date=date.today(), tournament="practise", r="None", adv_game=True
+    ) -> None:
         super().__init__(players, date, tournament, r, adv_game=adv_game)
 
     def new_set(self):

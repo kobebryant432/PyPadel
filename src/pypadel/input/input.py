@@ -1,12 +1,28 @@
 from pypadel.match_mechanics import Player, Match
 import pandas as pd
+from datetime import datetime
+
+
+def get_valid_date():
+    while True:
+        date_str = input("Date of the Tournament (format: YYYY-MM-DD): ")
+        try:
+            # Attempt to convert the date string to a datetime object
+            valid_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+            return valid_date
+        except ValueError:
+            # If parsing fails, notify the user and prompt again
+            print("Invalid date format. Please enter in the format YYYY-MM-DD.")
 
 
 def start_match():
-    date = input("Date of the Tournament: ")
+    date = get_valid_date()
     tournament = input("Tournament name: ")
     r = input("Round :")
-    adv_game = input("Are the games played with advantage - (Y) yes or (N) no:") in ['y','Y']
+    adv_game = input("Are the games played with advantage - (Y) yes or (N) no:") in [
+        "y",
+        "Y",
+    ]
     p1 = Player(input("Name player 1: "))
     p2 = Player(input("Name player 2: "))
     p3 = Player(input("Name player 3: "))
@@ -16,7 +32,12 @@ def start_match():
     players = [p for p in [p1, p2, p3, p4]]
 
     m = Match.create(
-        int(m_type), players=players, date=date, tournament=tournament, r=r, adv_game=adv_game
+        int(m_type),
+        players=players,
+        date=date,
+        tournament=tournament,
+        r=r,
+        adv_game=adv_game,
     )
 
     while True:
@@ -26,7 +47,7 @@ def start_match():
         while not input_ok(x):
             if x == "Q":
                 break
-            x = input(f"{x} is an invallid input. Try again")
+            x = input(f"{x} is an invalid input. Try again")
         m.process(x)
     return m
 
