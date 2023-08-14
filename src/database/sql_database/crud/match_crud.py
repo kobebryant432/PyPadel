@@ -54,6 +54,36 @@ class MatchCRUD:
         else:
             print("Match already exists, not inserting.")
 
+    def update_match(self, match_id, updated_data):
+        """
+        Updates an existing match record based on the match_id.
+        The updated_data argument should be a dictionary with keys corresponding to column names and values as updated data.
+        """
+        set_string = ", ".join([f"{key} = ?" for key in updated_data.keys()])
+        values = tuple(updated_data.values()) + (match_id,)
+
+        try:
+            with contextlib.closing(self.conn.cursor()) as cursor, self.conn:
+                cursor.execute(
+                    f"UPDATE matches SET {set_string} WHERE id = ?",
+                    values,
+                )
+        except sqlite3.Error as e:
+            print(f"An error occurred: {e.args[0]}")
+
+    def delete_match(self, match_id):
+        """
+        Deletes a match record based on the match_id.
+        """
+        try:
+            with contextlib.closing(self.conn.cursor()) as cursor, self.conn:
+                cursor.execute(
+                    "DELETE FROM matches WHERE id = ?",
+                    (match_id,),
+                )
+        except sqlite3.Error as e:
+            print(f"An error occurred: {e.args[0]}")
+
     def get_match(self, pos):
         try:
             with contextlib.closing(self.conn.cursor()) as cursor, self.conn:
