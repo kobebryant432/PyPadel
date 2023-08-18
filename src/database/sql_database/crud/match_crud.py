@@ -19,6 +19,8 @@ class MatchCRUD:
                 cat,
             )
 
+        m.sets_score = m.get_set_scores()
+
         if not self.match_exists(m):
             values_to_insert = (
                 m.date,
@@ -32,14 +34,15 @@ class MatchCRUD:
                 m.type,
                 ",".join(m.raw_input),
                 cat,
+                m.adv_game,  # Add the adv_game attribute here
             )
 
             try:
                 with contextlib.closing(self.conn.cursor()) as cursor, self.conn:
                     cursor.execute(
                         """
-                        INSERT OR IGNORE INTO matches (date, tournament, r, player_1, player_2, sets_score, player_3, player_4, match_type, raw_input, cat)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        INSERT OR IGNORE INTO matches (date, tournament, r, player_1, player_2, sets_score, player_3, player_4, match_type, raw_input, cat, adv_game)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                         values_to_insert,
                     )
@@ -50,6 +53,36 @@ class MatchCRUD:
                 print(f"An error occurred: {e.args[0]}")
         else:
             print("Match already exists, not inserting.")
+
+    def update_match(self, match_id, updated_data):
+        """
+        Updates an existing match record based on the match_id.
+        The updated_data argument should be a dictionary with keys corresponding to column names and values as updated data.
+        """
+        set_string = ", ".join([f"{key} = ?" for key in updated_data.keys()])
+        values = tuple(updated_data.values()) + (match_id,)
+
+        try:
+            with contextlib.closing(self.conn.cursor()) as cursor, self.conn:
+                cursor.execute(
+                    f"UPDATE matches SET {set_string} WHERE id = ?",
+                    values,
+                )
+        except sqlite3.Error as e:
+            print(f"An error occurred: {e.args[0]}")
+
+    def delete_match(self, match_id):
+        """
+        Deletes a match record based on the match_id.
+        """
+        try:
+            with contextlib.closing(self.conn.cursor()) as cursor, self.conn:
+                cursor.execute(
+                    "DELETE FROM matches WHERE id = ?",
+                    (match_id,),
+                )
+        except sqlite3.Error as e:
+            print(f"An error occurred: {e.args[0]}")
 
     def get_match(self, pos):
         try:

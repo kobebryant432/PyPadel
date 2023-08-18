@@ -179,10 +179,14 @@ class PlayerStats:
             )
 
         # Calculate average unforced errors and winners per game
-        avg_unforced_errors_per_game = total_unforced_errors / (
-            total_points_lost / 2.75
-        )
-        avg_winners_per_game = total_winners / (total_points_lost / 2.75)
+        if total_points_lost != 0:
+            avg_unforced_errors_per_game = total_unforced_errors / (
+                total_points_lost / 2.75
+            )
+            avg_winners_per_game = total_winners / (total_points_lost / 2.75)
+        else:
+            avg_unforced_errors_per_game = 0
+            avg_winners_per_game = 0
 
         return {
             "avg_unforced_errors_per_game": avg_unforced_errors_per_game,

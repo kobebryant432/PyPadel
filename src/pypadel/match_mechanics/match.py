@@ -1,15 +1,14 @@
 import pandas as pd
 import numpy as np
-from .set import *
-from .points import *
-from .player import *
-from datetime import date
+from .set import Set, Proset, Tiebreak_set
+from .points import Point, Forced_winner
+from .player import Player
+from datetime import date, datetime
 import openpyxl
 
 
 class Match:
     type = -1
-    # Convention -> player 1 and 3 on the left, player 2 and 4 on the right -> seems to be wrong
     input_map = {"f": "Forced Winner", "u": "Unforced Error", "w": "Winner"}
     team = {1: 0, 2: 0, 3: 1, 4: 1}
     team_map = {"w": 0, "f": 0, "u": 1}
@@ -28,16 +27,37 @@ class Match:
         return MESSAGE_TYPE_TO_CLASS_MAP[message_type](*args, **kwargs)
 
     def __init__(
-        self, players, date=date.today(), tournament="practice", r="None"
+        self,
+        players,
+        date=date.today(),
+        tournament="practice",
+        r="None",
+        adv_game=False,
     ) -> None:
-        self.date = date
+        # Ensure date is a date object and in the consistent format
+        if isinstance(date, str):
+            try:
+                self.date = datetime.strptime(date, "%Y-%m-%d").date()
+            except ValueError:
+                raise ValueError(
+                    f"Invalid date format for {date}. Expected format: YYYY-MM-DD"
+                )
+        else:
+            self.date = date
+
         self.tournament = tournament
         self.r = r
         self.players = players
         self.raw_score = []
         self.raw_input = []
+<<<<<<< HEAD
         self.current_set = self.new_set()
         self.sets = []
+=======
+        self.adv_game = adv_game
+        self.sets = []  # changed order of this operation
+        self.current_set = self.new_set()
+>>>>>>> origin/development
         self.finished = False
 
     def __str__(self) -> str:
@@ -54,7 +74,7 @@ class Match:
                 len(self.sets) + 1,
                 self.current_set.score(),
                 len(self.current_set.games) + 1,
-                self.current_set.current_game.score(),
+                self.current_set.current_game.score,
                 self.players[p.player - 1].name,
                 Match.team[p.player],
                 p.category,
@@ -77,7 +97,7 @@ class Match:
                     print(i, se)
 
     def new_set(self):
-        return set()
+        return Set(adv_game=self.adv_game)
 
     def get_set_scores(self):
         return ", ".join([s.score() for s in self.sets])
@@ -127,7 +147,6 @@ class Match:
 
     @classmethod
     def from_record(cls, record):
-        # Extract data from the record tuple including the cat
         (
             id,
             date,
@@ -141,24 +160,31 @@ class Match:
             match_type,
             raw_input,
             cat,
+            adv_game,
         ) = record
 
-        # Convert raw_input string to a list
         raw_input_data = raw_input.split(",")
 
-        # Create player objects
+        # Check if adv_game is a string, if not convert it to bool, default to False if not present
+        if isinstance(adv_game, str):
+            adv_game = adv_game.lower() == "true"
+        elif adv_game is not None:
+            adv_game = bool(adv_game)
+        else:
+            adv_game = False
+
         player_1 = Player(player_1_name)
         player_2 = Player(player_2_name)
         player_3 = Player(player_3_name)
         player_4 = Player(player_4_name)
 
-        # Create and return the match object
         m = cls.create(
             int(match_type),
             players=[player_1, player_2, player_3, player_4],
             date=date,
             tournament=tournament,
             r=r,
+            adv_game=adv_game,
         )
         m.play_match(raw_input_data)
 
@@ -368,6 +394,7 @@ class Match:
         ws.cell(column=7, row=r, value=str(self.players[3].name))
         ws.cell(column=8, row=r, value=self.type)
         ws.cell(column=9, row=r, value=str(",".join(self.raw_input)))
+        ws.cell(column=10, row=r, value=self.adv_game)
         wb.save(file)
 
 
@@ -375,32 +402,48 @@ class Match_tie(Match):
     type = 0
 
     def __init__(
-        self, players, date=date.today(), tournament="practise", r="None"
+        self,
+        players,
+        date=date.today(),
+        tournament="practise",
+        r="None",
+        adv_game=False,
     ) -> None:
-        super().__init__(players, date, tournament, r)
+        super().__init__(players, date, tournament, r, adv_game=adv_game)
 
     def new_set(self):
         if len(self.sets) == 2:
             return Tiebreak_set(target=10)
         else:
-            return Set()
+            return Set(adv_game=self.adv_game)
 
 
 class Match_3_sets(Match):
     type = 1
 
     def __init__(
-        self, players, date=date.today(), tournament="practise", r="None"
+        self,
+        players,
+        date=date.today(),
+        tournament="practise",
+        r="None",
+        adv_game=False,
     ) -> None:
-        super().__init__(players, date, tournament, r)
+        super().__init__(players, date, tournament, r, adv_game=adv_game)
 
     def new_set(self):
+<<<<<<< HEAD
         return Set()
+=======
+        return Set(adv_game=self.adv_game)
+
+>>>>>>> origin/development
 
 class Match_Proset(Match):
     type = 2
 
     def __init__(
+<<<<<<< HEAD
         self, players, date=date.today(), tournament="practise", r="None"
     ) -> None:
         super().__init__(players, date, tournament, r)
@@ -408,3 +451,11 @@ class Match_Proset(Match):
 
     def new_set(self):
         return Proset()
+=======
+        self, players, date=date.today(), tournament="practise", r="None", adv_game=True
+    ) -> None:
+        super().__init__(players, date, tournament, r, adv_game=adv_game)
+
+    def new_set(self):
+        return Proset()
+>>>>>>> origin/development

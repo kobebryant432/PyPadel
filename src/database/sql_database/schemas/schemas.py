@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS matches (
     match_type INTEGER,
     raw_input TEXT,
     cat TEXT,  -- New column for sheet name
+    adv_game INTEGER,  -- New column for adv_game
     UNIQUE(date, tournament, r, player_1, player_2, player_3, player_4, match_type, raw_input)
 )
 """
