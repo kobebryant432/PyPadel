@@ -70,24 +70,24 @@ class Point:
             A string containing information about the end of the point.
         """
 
-        self.player = int(string[0])
-        self.category = Point.cat[string[1]]
-        self.side = Point.side[string[2:4]]
+        self.player = int(string[1])
+        self.category = Point.cat[string[2]]
+        self.side = Point.side[string[3:5]]
 
         # Dubbel use of letter v -> if high v than it is a Vibora (V) else it is a volley (v)
-        if string[2:4] in ["hi", "hd"] and string[4] == "v":
+        if string[3:5] in ["hi", "hd"] and string[5] == "v":
             self.shot_type = self.shot["V"]
         else:
             # If the shot type from string is not in shot dictionary
-            if string[4] not in self.shot:
-                if string[4:] in self.reverse_shot:
-                    self.shot_type = string[4:]
+            if string[5] not in self.shot:
+                if string[5:] in self.reverse_shot:
+                    self.shot_type = string[5:]
                 else:
                     raise ValueError(f"Invalid shot type: {string[4:]}")
             else:
-                self.shot_type = self.shot[string[4]]
+                self.shot_type = self.shot[string[5]]
 
-        self.direction = Point.direction[string[5]]
+        self.direction = Point.direction[string[6]]
         self.raw = string
 
     def __str__(self) -> str:
@@ -107,6 +107,6 @@ class Unforced_error(Point):
 class Forced_winner(Point):
     def __init__(self, string) -> None:
         super().__init__(string)
-        self.player2 = string[6]
-        self.side2 = string[7:9]
-        self.shot_type_2 = string[9]
+        self.player2 = string[7]
+        self.side2 = string[8:10]
+        self.shot_type_2 = string[10]

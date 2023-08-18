@@ -213,12 +213,6 @@ class Tiebreak_set(Set):
             print(self)
 
 class Proset(Set):
-<<<<<<< HEAD
-    def __init__(self) -> None:
-        super().__init__()
-
-    def update(self, point_winner, p):
-=======
     """Class to represent a pro-set a set to 9 games, inheriting from the Set class.
 
     Attributes
@@ -289,7 +283,6 @@ class Proset(Set):
         p : Point
             The point scored.
         """
->>>>>>> origin/development
         self.current_game.update(point_winner, p)
         if self.current_game.finished:
             winner = self.current_game.winner
@@ -306,13 +299,10 @@ class Proset(Set):
             self.is_fininshed()
 
     def is_fininshed(self):
-<<<<<<< HEAD
-=======
         """Check if the set is finished and determine the winner.
 
         A pro-set is finished if one team reaches 9 games.
         """
->>>>>>> origin/development
         t1 = self.score_t1
         t2 = self.score_t2
         if max(t1, t2) == 9:
@@ -323,8 +313,6 @@ class Proset(Set):
                 self.winner = 2
 
     def score(self):
-<<<<<<< HEAD
-=======
         """Get the current set score in the format "score_team1-score_team2".
 
         Returns
@@ -332,5 +320,4 @@ class Proset(Set):
         str
             The game score.
         """
->>>>>>> origin/development
         return f"{self.score_t1}-{self.score_t2}"

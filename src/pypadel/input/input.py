@@ -57,6 +57,7 @@ def input_ok(x):
         print(f"No input")
         return False
     x = x.lower()
+    serve = {"1","2"}
     pl = {"1", "2", "3", "4"}
     cat = {"f", "u", "w"}
     side = {"fh", "bh", "hi", "hd"}
@@ -66,39 +67,42 @@ def input_ok(x):
         return True
     if x[0] == "!":
         return True
-    if len(x) < 6:
+    if len(x) < 7:
         print("Input lenght is to short")
         return False
-    if x[0] not in pl:
-        print(f"Player is incorrect -> got {x[0]}")
+    if x[0] not in serve:
+        print(f"serve is incorrect -> got {x[0]}")
         return False
-    if x[1] not in cat:
-        print(f"Category is incorrect -> got {x[1]} which is not in {cat}")
+    if x[1] not in pl:
+        print(f"Player is incorrect -> got {x[1]}")
         return False
-    if x[2:4] not in side:
-        print(f"The side is incorrect -> got {x[2:4]} which is not in {side}")
+    if x[2] not in cat:
+        print(f"Category is incorrect -> got {x[2]} which is not in {cat}")
         return False
-    if x[4] not in shot:
-        print(f"Shot is incorrect -> got {x[4]} which is not in {shot}")
+    if x[3:5] not in side:
+        print(f"The side is incorrect -> got {x[3:5]} which is not in {side}")
         return False
-    if x[5] not in direction:
-        print(f"Direction is incorrect -> got {x[5]} which is not in {direction}")
+    if x[5] not in shot:
+        print(f"Shot is incorrect -> got {x[5]} which is not in {shot}")
         return False
-    if x[1] == "f":
-        if len(x) < 10:
+    if x[6] not in direction:
+        print(f"Direction is incorrect -> got {x[6]} which is not in {direction}")
+        return False
+    if x[2] == "f":
+        if len(x) < 11:
             print("Input lenght is to short")
             return False
-        if x[6] not in pl:
-            print(f"Player making the forced error is incorrect -> got {x[0]}")
+        if x[7] not in pl:
+            print(f"Player making the forced error is incorrect -> got {x[1]}")
             return False
-        if x[7:9] not in side:
+        if x[8:10] not in side:
             print(
-                f"The side of player making the forced error is incorrect -> got {x[7:9]} which is not in {side}"
+                f"The side of player making the forced error is incorrect -> got {x[8:10]} which is not in {side}"
             )
             return False
-        if x[9] not in shot:
+        if x[10] not in shot:
             print(
-                f"Shot of player making the forced error is incorrect -> got {x[9]} which is not in {shot}"
+                f"Shot of player making the forced error is incorrect -> got {x[10]} which is not in {shot}"
             )
             return False
     return True

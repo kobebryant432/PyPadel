@@ -50,14 +50,9 @@ class Match:
         self.players = players
         self.raw_score = []
         self.raw_input = []
-<<<<<<< HEAD
-        self.current_set = self.new_set()
-        self.sets = []
-=======
         self.adv_game = adv_game
         self.sets = []  # changed order of this operation
         self.current_set = self.new_set()
->>>>>>> origin/development
         self.finished = False
 
     def __str__(self) -> str:
@@ -85,8 +80,8 @@ class Match:
             )
         )
 
-        team_action = Match.team[int(x[0])]
-        point_winner = (team_action + Match.team_map[x[1]]) % 2
+        team_action = Match.team[int(x[1])]
+        point_winner = (team_action + Match.team_map[x[2]]) % 2
         self.current_set.update(point_winner + 1, p)
 
         if self.current_set.finished:
@@ -432,30 +427,16 @@ class Match_3_sets(Match):
         super().__init__(players, date, tournament, r, adv_game=adv_game)
 
     def new_set(self):
-<<<<<<< HEAD
-        return Set()
-=======
         return Set(adv_game=self.adv_game)
 
->>>>>>> origin/development
 
 class Match_Proset(Match):
     type = 2
 
     def __init__(
-<<<<<<< HEAD
-        self, players, date=date.today(), tournament="practise", r="None"
-    ) -> None:
-        super().__init__(players, date, tournament, r)
-        self.current_set = Proset()
-
-    def new_set(self):
-        return Proset()
-=======
         self, players, date=date.today(), tournament="practise", r="None", adv_game=True
     ) -> None:
         super().__init__(players, date, tournament, r, adv_game=adv_game)
 
     def new_set(self):
         return Proset()
->>>>>>> origin/development
