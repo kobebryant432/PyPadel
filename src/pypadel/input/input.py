@@ -57,7 +57,7 @@ def input_ok(x):
         print(f"No input")
         return False
     x = x.lower()
-    serve = {"1","2"}
+    serve = {"e","t"}
     pl = {"1", "2", "3", "4"}
     cat = {"f", "u", "w"}
     side = {"fh", "bh", "hi", "hd"}

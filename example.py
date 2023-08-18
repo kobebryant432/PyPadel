@@ -15,32 +15,32 @@ from pypadel import *
 from database import *
 
 # add a data path
-# db_path = Path(current_working_directory) / "data" / "db"
-# xlsx_path = Path(current_working_directory) / "data" / "xlsx"
+db_path = Path(current_working_directory) / "data" / "db"
+xlsx_path = Path(current_working_directory) / "data" / "xlsx"
 
-# db = SqlDatabase.init_from_existing(db_filename=db_path/"test.db")
-
-
+db = SqlDatabase.init_from_existing(db_filename=db_path/"test.db")
 
 
-# m = start_match()
+
+
+m = start_match()
 # Export the match statistics of the analysed match.
-# m.export()
+m.export()
 # # Export the 'raw' data of this match to be added to a database input excel later.
-# m.export_raw(file= 'in/local_inputs.xlsx')
-# db.add_match(m=m, cat=builtins.input('Fill in the Category: '))
-# db.export_raw()
-# db.close()
+m.export_raw(file= 'in/local_inputs.xlsx')
+db.add_match(m=m, cat=builtins.input('Fill in the Category: '))
+db.export_raw()
+db.close()
     
 #Example 2 - Loading a db
-db = Database('test')
+# db = Database('test')
 # db.load_db('in/local_inputs.xlsx') 
 # db.export_all()
 
 # Initialize your database
-D = Database('P1000 Men') 
+# D = Database('P1000 Men') 
 # # Load the input dataset - note that if there is incorrect input you will need to correct it.
-D.load_db('in/local_inputs.xlsx')
+# D.load_db('in/local_inputs.xlsx')
 
 # #Let's say you want to add a match to the db. For example your newly tracked match m:
 # #M_1000.add_match(m) # Add match m
