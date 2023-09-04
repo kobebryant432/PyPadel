@@ -3,6 +3,42 @@ import pandas as pd
 from datetime import datetime
 
 
+class InputManager:
+    def __init__(self, match_instance):
+        self.match = match_instance
+        self.input_history = []  # Stack to maintain history of inputs
+
+    def process_input(self, user_input):
+        if user_input == "u":
+            self.undo_last_input()
+            return
+
+        self.input_history.append(user_input)  # Add the processed input to history
+        self.match.process(user_input)
+
+    def undo_last_input(self):
+        if self.input_history:
+            self.input_history.pop()  # Remove the last input
+            self.reprocess_match()  # Reprocess the match with the updated history
+
+    def reprocess_match(self):
+        # Save the current match configuration (like players, match type, etc.)
+        match_config = {
+            "players": self.match.players,
+            "date": self.match.date,
+            "tournament": self.match.tournament,
+            "r": self.match.r,
+            "adv_game": self.match.adv_game,
+        }
+
+        # Reinitialize the match instance
+        self.match.__init__(**match_config)
+
+        # Reprocess each input in the history
+        for input_item in self.input_history:
+            self.match.process(input_item)
+
+
 def get_valid_date():
     while True:
         date_str = input("Date of the Tournament (format: YYYY-MM-DD): ")
@@ -40,6 +76,9 @@ def start_match():
         adv_game=adv_game,
     )
 
+    # Use the InputManager for processing inputs
+    input_manager = InputManager(m)
+
     while True:
         x = input()
         if x == "Q":
@@ -48,7 +87,10 @@ def start_match():
             if x == "Q":
                 break
             x = input(f"{x} is an invalid input. Try again")
-        m.process(x)
+
+        # Process the input using the InputManager
+        input_manager.process_input(x)
+
     return m
 
 
@@ -65,6 +107,9 @@ def input_ok(x):
     if x[0] == "#" and x[1] in pl:
         return True
     if x[0] == "!":
+        return True
+    # Allow "u" as a valid input for undoing
+    if x.lower() == "u":
         return True
     if len(x) < 6:
         print("Input lenght is to short")
