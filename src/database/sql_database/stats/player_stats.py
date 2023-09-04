@@ -159,6 +159,7 @@ class PlayerStats:
         total_unforced_errors = 0
         total_winners = 0
         total_points_lost = 0
+        total_games_played = 0
 
         for match_data in matches_data:
             # Convert the raw data into a Match instance
@@ -173,17 +174,16 @@ class PlayerStats:
             total_winners += stats["winners"]
             total_winners += stats["forced_winners"]
             total_points_lost += stats["total_points_lost"]
+            total_games_played += match_instance.total_games_played()
 
             print(
-                f"Match ID: {match_data['id']}, Unforced errors in this match: {stats['unforced_errors']}, Winners in this match: {stats['winners']}"
+                f"Match ID: {match_data['id']}, Unforced errors in this match: {stats['unforced_errors']}, Winners in this match: {stats['winners']}, Games played in this match: {match_instance.total_games_played()}"
             )
 
         # Calculate average unforced errors and winners per game
-        if total_points_lost != 0:
-            avg_unforced_errors_per_game = total_unforced_errors / (
-                total_points_lost / 2.75
-            )
-            avg_winners_per_game = total_winners / (total_points_lost / 2.75)
+        if total_points_lost != 0 and total_games_played != 0:
+            avg_unforced_errors_per_game = total_unforced_errors / total_games_played
+            avg_winners_per_game = total_winners / total_games_played
         else:
             avg_unforced_errors_per_game = 0
             avg_winners_per_game = 0

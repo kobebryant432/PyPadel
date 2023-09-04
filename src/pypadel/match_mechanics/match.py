@@ -140,6 +140,32 @@ class Match:
 
         return count
 
+    def total_games_played(self):
+        total_games = 0
+
+        def games_from_tiebreak(tiebreak_game):
+            return len(tiebreak_game.points) / 5.5
+
+        # Count games from finished sets
+        for set_ in self.sets:
+            # Regular games count
+            total_games += len(set_.games)
+
+            # Check for tiebreaks based on final set scores
+            if (set_.score_t1 == 7 and set_.score_t2 == 6) or (
+                set_.score_t1 == 6 and set_.score_t2 == 7
+            ):
+                total_games += games_from_tiebreak(set_.games[-1])
+            elif (set_.score_t1 == 9 and set_.score_t2 == 8) or (
+                set_.score_t1 == 8 and set_.score_t2 == 9
+            ):
+                total_games += games_from_tiebreak(set_.games[-1])
+            # Check for supertiebreaks (represented as Tiebreak_set)
+            elif isinstance(set_, Tiebreak_set):
+                total_games += games_from_tiebreak(set_.current_game)
+
+        return total_games
+
     @classmethod
     def from_record(cls, record):
         (
