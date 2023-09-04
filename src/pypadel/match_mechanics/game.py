@@ -18,6 +18,7 @@ class Game:
     winner : int
         The team number (1 or 2) that won the game if the game is finished.
     """
+
     sc_tr = {0: "0", 1: "15", 2: "30", 3: "40", 4: "Game"}
 
     def __init__(self) -> None:
@@ -32,11 +33,9 @@ class Game:
         if self.finished:
             return f"Team {self.winner} won the game - {self.score}"
         elif self.score_t1 == 3 and self.score_t2 == 3:
-            return "Golden Point!"
+            return f"Golden Point! Game score is {self.score}"
         else:
-            return (
-                f"Game score is {self.score}"
-            )
+            return f"Game score is {self.score}"
 
     def update(self, team, point):
         """Update the game with a new point.
@@ -73,7 +72,7 @@ class Game:
     def is_finished(self):
         """Check if the game has finished and determine who won the game.
 
-        A standard game uses golden point and is finished when a team makes 4 points. The status of the game is 
+        A standard game uses golden point and is finished when a team makes 4 points. The status of the game is
         updated to finished and a winner is assigned if the game is finished.
         """
         if self.score_t1 == 4:
@@ -130,6 +129,7 @@ class Tiebreak(Game):
     Game : class
         The base class for representing games.
     """
+
     def __init__(self, target=7) -> None:
         super().__init__()
         self.target = target
@@ -144,7 +144,7 @@ class Tiebreak(Game):
     def is_finished(self):
         """Check if the game has finished and determine who won the tie-break.
 
-        A tie-break is finished when a team reaches the target amount of points with a 2 point gap. 
+        A tie-break is finished when a team reaches the target amount of points with a 2 point gap.
         The status of the tie-break is updated to finished and a winner is assigned if the tie-break is finished.
         """
         if self.score_t1 >= self.target and self.score_t1 - self.score_t2 > 1:
@@ -164,42 +164,22 @@ class Tiebreak(Game):
             The game score.
         """
         return f"{self.score_t1}-{self.score_t2}"
-    
+
+
 class Adv_game(Game):
     """
-    Class to represent a game with advantage, a specialized form of a game.
-
-    Attributes
-    ----------
-    score_t1 : int
-        The score of team 1.
-    score_t2 : int
-        The score of team 2.
-    points : dict
-        A dictionary to store points along with their corresponding scores.
-    finished : bool
-        Flag indicating if the tie-break game is finished.
-    winner : int
-        The team number (1 or 2) that won the tie-break game.
-
-    Inherits
-    --------
-    Game : class
-        The base class for representing games.
+    Class to represent a game with advantage.
     """
+
     def __init__(self) -> None:
         super().__init__()
 
     def is_finished(self):
-        """Check if the game has finished and determine who won the game.
-
-        An advantage game is finished when a team makes at least 4 points and has a 2 point lead over the other team. 
-        The status of the game is updated to finished and a winner is assigned if the game is finished.
-        """
-        if self.score_t1 >= 4 and self.score_t1 - self.score_t2 > 1:
+        """Check if the game has finished."""
+        if self.score_t1 >= 4 and self.score_t1 - self.score_t2 >= 2:
             self.winner = 1
             self.finished = True
-        if self.score_t2 >= 4 and self.score_t2 - self.score_t1 > 1:
+        if self.score_t2 >= 4 and self.score_t2 - self.score_t1 >= 2:
             self.winner = 2
             self.finished = True
 
@@ -207,28 +187,22 @@ class Adv_game(Game):
         if self.finished:
             return f"Team {self.winner} won the game - {self.score}"
         else:
-            return (
-                f"Game score is {self.score}"
-            )
+            return f"Game score is {self.score}"
 
     @property
-    def score(self):
-        """Get the current game score in the format "score_team1-score_team2".
-
-        Returns
-        -------
-        str
-            The game score.
-        """
+    def score(self) -> str:
+        """Get the current game score."""
         if self.score_t1 < 4 and self.score_t2 < 4:
             return f"{Game.sc_tr[self.score_t1]}-{Game.sc_tr[self.score_t2]}"
-        elif self.score_t1 - self.score_t2 ==1:
+        elif self.score_t1 == 3 and self.score_t2 == 3:
+            return "40-40"
+        elif self.score_t1 - self.score_t2 == 1:
             return "Adv-40"
-        elif self.score_t2 - self.score_t1 ==1:
+        elif self.score_t2 - self.score_t1 == 1:
             return "40-Adv"
-        elif self.score_t1 > self.score_t2:
+        elif self.score_t1 > self.score_t2 + 1:
             return "Game-40"
-        elif self.score_t2 > self.score_t1:
+        elif self.score_t2 > self.score_t1 + 1:
             return "40-Game"
         else:
             return "40-40"

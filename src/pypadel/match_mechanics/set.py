@@ -23,6 +23,7 @@ class Set:
     winner : int
         The team number (1 or 2) that won the set if the set is finished.
     """
+
     def __init__(self, adv_game=False) -> None:
         """
         Initialize a new set.
@@ -71,7 +72,7 @@ class Set:
 
         After updating the servers with 2 players (one from each team) the server order is uniquely defined for the set.
         Adding more servers will have no impact.
-        
+
         Parameters
         ----------
         player : int
@@ -87,7 +88,7 @@ class Set:
     def update(self, point_winner, p):
         """Update the set with a new point.
 
-        If the point finishes the current game the set score is updated, a check is performed to see if the set is finished, 
+        If the point finishes the current game the set score is updated, a check is performed to see if the set is finished,
         a new game or tie-break is started. A tie-break is started at 6-6.
 
         Parameters
@@ -170,6 +171,7 @@ class Tiebreak_set(Set):
     Set : class
         The base class for representing sets.
     """
+
     def __init__(self, target=10) -> None:
         """Initialize a new tie-break set.
 
@@ -212,6 +214,7 @@ class Tiebreak_set(Set):
             self.finished = True
             print(self)
 
+
 class Proset(Set):
     """Class to represent a pro-set a set to 9 games, inheriting from the Set class.
 
@@ -240,6 +243,7 @@ class Proset(Set):
     Set : class
         The base class for representing sets.
     """
+
     def __init__(self, adv_game=True) -> None:
         """
         Initialize a new pro-set.
@@ -273,7 +277,7 @@ class Proset(Set):
     def update(self, point_winner, p):
         """Update the set with a new point.
 
-        If the point finishes the current game the set score is updated, a check is performed to see if the pro-set is finished, 
+        If the point finishes the current game the set score is updated, a check is performed to see if the pro-set is finished,
         a new game or tie-break is started. A tie-break is started at 8-8.
 
         Parameters
@@ -294,7 +298,8 @@ class Proset(Set):
             if self.score_t1 == 8 and self.score_t2 == 8:
                 self.current_game = Tiebreak()
             else:
-                self.current_game = Game()
+                # Check the adv_game flag and initialize the next game accordingly
+                self.current_game = Adv_game() if self.adv_game else Game()
             print(self)
             self.is_fininshed()
 
