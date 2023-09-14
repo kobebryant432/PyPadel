@@ -56,7 +56,20 @@ class Match:
         self.finished = False
 
     def __str__(self) -> str:
-        return f"A {self.r} match in {self.tournament} on {self.date} between {self.players[0].name}/{self.players[1].name} vs {self.players[2].name}/{self.players[3].name}"
+        match_type = self.__class__.__name__
+        return f"A {match_type} {self.r} match in {self.tournament} on {self.date} between {self.players[0].name}/{self.players[1].name} vs {self.players[2].name}/{self.players[3].name}"
+
+    def check_match_finished(self):
+        team1_wins = sum(1 for s in self.sets if s.winner == 1)
+        team2_wins = sum(1 for s in self.sets if s.winner == 2)
+        
+        # Check the match type
+        if isinstance(self, Match_Proset):
+            # For Proset, a team needs to win 1 set
+            return team1_wins >= 1 or team2_wins >= 1
+        else:
+            # For other match types, a team needs to win 2 sets
+            return team1_wins >= 2 or team2_wins >= 2
 
     def update(self, x, silent=False):
         if x[1] == "f":
@@ -87,6 +100,9 @@ class Match:
         if self.current_set.finished:
             self.sets.append(self.current_set)
             self.current_set = self.new_set()
+            if self.check_match_finished():
+                self.finished = True
+                return
             if not silent:  # Only print if silent mode is not enabled
                 for i, se in enumerate(self.sets):
                     print(i, se)
