@@ -3,6 +3,7 @@ import numpy as np
 from .set import Set, Proset, Tiebreak_set
 from .points import Point, Forced_winner
 from .player import Player
+from .point_mappings import POINT_STRUCTURE, FORCED_WINNER_POINT_STRUCTURE
 from datetime import date, datetime
 import openpyxl
 
@@ -72,7 +73,8 @@ class Match:
             return team1_wins >= 2 or team2_wins >= 2
 
     def update(self, x, silent=False):
-        if x[1] == "f":
+        point_data = {attr: x[s] for attr, s in POINT_STRUCTURE.items()}
+        if point_data['category'] == "f":
             p = Forced_winner(x)
         else:
             p = Point(x)
@@ -93,8 +95,8 @@ class Match:
             )
         )
 
-        team_action = Match.team[int(x[0])]
-        point_winner = (team_action + Match.team_map[x[1]]) % 2
+        team_action = Match.team[int(point_data['player'])]
+        point_winner = (team_action + Match.team_map[point_data['category']]) % 2
         self.current_set.update(point_winner + 1, p)
 
         if self.current_set.finished:
@@ -130,31 +132,6 @@ class Match:
                 l = input(f"{l} is an invalid input. Please correct it:")
             self.raw_input.append(l)
             self.update(l)
-
-    def get_points_in_category(self, category_name, player_name=None):
-        """
-        Returns the number of points in a specified category for a specific player during a match.
-
-        Parameters:
-        - category_name (str): Name of the category (e.g. 'Winner', 'Unforced Error', 'Forced Winner')
-        - player_name (str, optional): Name of the player. If None, returns points in the category for the whole match.
-
-        Returns:
-        int: Number of points in the specified category for the specified player (or for the whole match if no player specified).
-        """
-
-        # If a player name is provided, count the points for that player
-        if player_name:
-            count = sum(
-                1
-                for raw in self.raw_score
-                if raw[6] == category_name and raw[4] == player_name
-            )
-        # If no player name is provided, count the points for the entire match
-        else:
-            count = sum(1 for raw in self.raw_score if raw[6] == category_name)
-
-        return count
 
     def total_games_played(self):
         total_games = 0

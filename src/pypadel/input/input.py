@@ -1,4 +1,5 @@
 from pypadel.match_mechanics import Player, Match
+from pypadel.match_mechanics.point_mappings import POINT_STRUCTURE, FORCED_WINNER_POINT_STRUCTURE, cat, side, shot, direction
 import pandas as pd
 from datetime import datetime
 
@@ -93,17 +94,12 @@ def start_match():
 
     return m
 
-
 def input_ok(x):
     if x == "":
         print(f"No input")
         return False
     x = x.lower()
     pl = {"1", "2", "3", "4"}
-    cat = {"f", "u", "w"}
-    side = {"fh", "bh", "hi", "hd"}
-    shot = {"v", "o", "n", "g", "r", "l", "s", "V", "k", "b", "j", "z", "f"}
-    direction = {"c", "p", "n", "l", "m", "d", "k", "f", "g"}
     if x[0] == "#" and x[1] in pl:
         return True
     if x[0] == "!":
@@ -112,38 +108,40 @@ def input_ok(x):
     if x.lower() == "u":
         return True
     if len(x) < 6:
-        print("Input lenght is to short")
+        print("Input length is too short")
         return False
-    if x[0] not in pl:
-        print(f"Player is incorrect -> got {x[0]}")
+    point_data = {attr: x[s] for attr, s in POINT_STRUCTURE.items()}
+    if point_data['player'] not in pl:
+        print(f"Player is incorrect -> got {point_data['player']}")
         return False
-    if x[1] not in cat:
-        print(f"Category is incorrect -> got {x[1]} which is not in {cat}")
+    if point_data['category'] not in cat:
+        print(f"Category is incorrect -> got {point_data['category']} which is not in {cat}")
         return False
-    if x[2:4] not in side:
-        print(f"The side is incorrect -> got {x[2:4]} which is not in {side}")
+    if point_data['side'] not in side:
+        print(f"The side is incorrect -> got {point_data['side']} which is not in {side}")
         return False
-    if x[4] not in shot:
-        print(f"Shot is incorrect -> got {x[4]} which is not in {shot}")
+    if point_data['shot_type'] not in shot:
+        print(f"Shot is incorrect -> got {point_data['shot_type']} which is not in {shot}")
         return False
-    if x[5] not in direction:
-        print(f"Direction is incorrect -> got {x[5]} which is not in {direction}")
+    if point_data['direction'] not in direction:
+        print(f"Direction is incorrect -> got {point_data['direction']} which is not in {direction}")
         return False
-    if x[1] == "f":
+    if point_data['category'] == "f":
         if len(x) < 10:
-            print("Input lenght is to short")
+            print("Input length is too short")
             return False
-        if x[6] not in pl:
-            print(f"Player making the forced error is incorrect -> got {x[0]}")
+        forced_winner_data = {attr: x[s] for attr, s in FORCED_WINNER_POINT_STRUCTURE.items()}
+        if forced_winner_data['player2'] not in pl:
+            print(f"Player making the forced error is incorrect -> got {forced_winner_data['player2']}")
             return False
-        if x[7:9] not in side:
+        if forced_winner_data['side2'] not in side:
             print(
-                f"The side of player making the forced error is incorrect -> got {x[7:9]} which is not in {side}"
+                f"The side of player making the forced error is incorrect -> got {forced_winner_data['side2']} which is not in {side}"
             )
             return False
-        if x[9] not in shot:
+        if forced_winner_data['shot_type_2'] not in shot:
             print(
-                f"Shot of player making the forced error is incorrect -> got {x[9]} which is not in {shot}"
+                f"Shot of player making the forced error is incorrect -> got {forced_winner_data['shot_type_2']} which is not in {shot}"
             )
             return False
     return True
