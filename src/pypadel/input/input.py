@@ -107,7 +107,8 @@ def input_ok(x):
     # Allow "u" as a valid input for undoing
     if x.lower() == "u":
         return True
-    if len(x) < 6:
+    min_length = max(s.stop for s in POINT_STRUCTURE.values())
+    if len(x) < min_length:
         print("Input length is too short")
         return False
     point_data = {attr: x[s] for attr, s in POINT_STRUCTURE.items()}
@@ -127,8 +128,9 @@ def input_ok(x):
         print(f"Direction is incorrect -> got {point_data['direction']} which is not in {direction}")
         return False
     if point_data['category'] == "f":
-        if len(x) < 10:
-            print("Input length is too short")
+        min_length_forced = max(s.stop for s in FORCED_WINNER_POINT_STRUCTURE.values())
+        if len(x) < min_length_forced:
+            print("Input length is too short for a forced winner point")
             return False
         forced_winner_data = {attr: x[s] for attr, s in FORCED_WINNER_POINT_STRUCTURE.items()}
         if forced_winner_data['player2'] not in pl:
