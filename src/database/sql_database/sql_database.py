@@ -122,25 +122,35 @@ class ExcelDataManager:
         self.db = db_instance
 
     def load_data(self, **kwargs):
-        xls = pd.ExcelFile(self.file_path)  # Open the Excel file
-        for (
-            sheet_name
-        ) in xls.sheet_names:  # Loop through all the sheets in the Excel file
-            df = pd.read_excel(self.file_path, sheet_name=sheet_name, **kwargs)
-            df.columns = df.columns.str.strip().str.lower()
-            for index, row in df.iterrows():
-                self._create_match(
-                    row, sheet_name
-                )  # Pass the sheet name to the _create_match method
+        file_extension = Path(self.file_path).suffix
+
+        if file_extension == '.xlsx':
+            xls = pd.ExcelFile(self.file_path)  # Open the Excel file
+            for sheet_name in xls.sheet_names:  # Loop through all the sheets in the Excel file
+                df = pd.read_excel(self.file_path, sheet_name=sheet_name, **kwargs)
+                df.columns = df.columns.str.strip().str.lower()
+                for index, row in df.iterrows():
+                    self._create_match(row, sheet_name)  # Pass the sheet name to the _create_match method
+        elif file_extension == '.csv':
+            encodings = ['utf-8', 'latin1', 'iso-8859-1']  # Add more encodings as needed
+            for encoding in encodings:
+                try:
+                    df = pd.read_csv(self.file_path, encoding=encoding, **kwargs)
+                    df.columns = df.columns.str.strip().str.lower()
+                    for index, row in df.iterrows():
+                        self._create_match(row, 'csv')  # Pass 'csv' as the sheet name to the _create_match method
+                    break  # If no error, break the loop
+                except UnicodeDecodeError:
+                    continue  # If an error occurs, try the next encoding
+            else:  # If all encodings fail, raise an error
+                raise ValueError(f"Unsupported file encoding for file: {self.file_path}")
+        else:
+            raise ValueError(f"Unsupported file extension: {file_extension}")
 
         # After processing all matches, update player statistics
-        players_to_update = (
-            builtins.set()
-        )  # This set keeps track of the players whose stats need to be updated.
+        players_to_update = set()  # This set keeps track of the players whose stats need to be updated.
         for index, row in df.iterrows():
-            players_to_update.update(
-                [row.player_1, row.player_2, row.player_3, row.player_4]
-            )
+            players_to_update.update([row.player_1, row.player_2, row.player_3, row.player_4])
 
         for player_name in players_to_update:
             self.db.player_manager.update_player_stats(player_name)
@@ -148,14 +158,16 @@ class ExcelDataManager:
     def _create_match(self, row, cat):
         # Step 1: Attempt to Convert Timestamp to a datetime.date object
         try:
-            converted_date = row.date.to_pydatetime().date()
-        except AttributeError:
-            print(
-                f"Error: Could not convert the date for the match with details: {row}. Using today's date as fallback."
-            )
-            from datetime import date
-
-            converted_date = date.today()
+            converted_date = pd.to_datetime(row.date).date()
+        except Exception:
+            try:
+                converted_date = row.date.to_pydatetime().date()
+            except Exception:
+                print(
+                    f"Error: Could not convert the date for the match with details: {row}. Using today's date as fallback."
+                )
+                from datetime import date
+                converted_date = date.today()
 
         # Check if adv_game is present, if not default to False
         if "adv_game" in row:
