@@ -1,20 +1,28 @@
 # point_mappings.py
 
 POINT_STRUCTURE = {
-    "player": slice(0, 1),
-    "category": slice(1, 2),
-    "side": slice(2, 4),
-    "shot_type": slice(4, 5),
-    "direction": slice(5, 6),
+    "serve_type": slice(0, 1),
+    "player": slice(1, 2),
+    "category": slice(2, 3),
+    "side": slice(3, 5),
+    "shot_type": slice(5, 6),
+    "direction": slice(6, 7),
 }
 
 FORCED_WINNER_POINT_STRUCTURE = {
     **POINT_STRUCTURE,
-    "player2": slice(6, 7),
-    "side2": slice(7, 9),
-    "shot_type_2": slice(9, 10),
+    "player2": slice(7, 8),  # Indices updated
+    "side2": slice(8, 10),
+    "shot_type_2": slice(10, 11),
 }
 
+serve_type = {"e": "First (eerste) Serve", "t": "Second (tweede) Serve"}
+player = {
+    "1": "Player 1",
+    "2": "Player 2",
+    "3": "Player 3",
+    "4": "Player 4",
+}
 cat = {"f": "Forced Winner", "u": "Unforced Error", "w": "Winner"}
 side = {"fh": "Forehand", "bh": "Backhand", "hi": "High", "hd": "High defense"}
 shot = {

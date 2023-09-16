@@ -1,5 +1,5 @@
 from pypadel.match_mechanics import Player, Match
-from pypadel.match_mechanics.point_mappings import POINT_STRUCTURE, FORCED_WINNER_POINT_STRUCTURE, cat, side, shot, direction
+from pypadel.match_mechanics.point_mappings import POINT_STRUCTURE, FORCED_WINNER_POINT_STRUCTURE, serve_type, cat, side, shot, direction
 import pandas as pd
 from datetime import datetime
 
@@ -112,6 +112,9 @@ def input_ok(x):
         print("Input length is too short")
         return False
     point_data = {attr: x[s] for attr, s in POINT_STRUCTURE.items()}
+    if point_data['serve_type'] not in serve_type:
+        print(f"Serve type is incorrect -> got {point_data['serve_type']}")
+        return False
     if point_data['player'] not in pl:
         print(f"Player is incorrect -> got {point_data['player']}")
         return False

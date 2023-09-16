@@ -1,5 +1,6 @@
-from .point_mappings import cat, side, shot, direction, POINT_STRUCTURE, FORCED_WINNER_POINT_STRUCTURE
+from .point_mappings import serve_type, player, cat, side, shot, direction, POINT_STRUCTURE, FORCED_WINNER_POINT_STRUCTURE
 import random
+from itertools import product
 
 class Point:
     """Class to represent a point in a game.
@@ -32,11 +33,14 @@ class Point:
     """
 
     # Use the imported dictionaries
+    serve_type = serve_type
+    player = player
     cat = cat
     side = side
     shot = shot
     direction = direction
     POINT_STRUCTURE = POINT_STRUCTURE
+    FORCED_WINNER_POINT_STRUCTURE = FORCED_WINNER_POINT_STRUCTURE
 
     # New reverse shot dictionary
     reverse_shot = {value: key for key, value in shot.items()}
@@ -51,6 +55,7 @@ class Point:
             A string containing information about the end of the point.
         """
 
+        self.serve_type = string[POINT_STRUCTURE['serve_type']]
         self.player = int(string[POINT_STRUCTURE['player']])
         self.category = Point.cat[string[POINT_STRUCTURE['category']]]
         self.side = Point.side[string[POINT_STRUCTURE['side']]]
@@ -75,35 +80,44 @@ class Point:
         return f"Player {self.player} made a {self.category} on a {self.side} {self.shot_type} in the {self.direction}"
 
     @staticmethod
+    # TODO: this is a rather ugly way of generating valid point strings. It should be further improved.
     def generate_valid_point_strings():
+        # Create a dictionary mapping point structure keys to their corresponding dictionaries
+        key_to_dict = {
+            "serve_type": serve_type,
+            "player": player,
+            "category": cat,
+            "side": side,
+            "shot_type": shot,
+            "direction": direction,
+            # Add other keys as needed
+        }
+
+        # Generate all possible combinations of point structure values
         valid_point_strings = set()
-        for player in range(1, 5):
-            for cat_key in Point.cat.keys():
-                for side_key in Point.side.keys():
-                    for shot_key in Point.shot.keys():
-                        for direction_key in Point.direction.keys():
-                            # Generate additional point strings for forced winners
-                            if cat_key == "f":
-                                # Introduce a probability to limit the number of forced winners
-                                if random.random() < 0.5:
-                                    for player2 in range(1, 5):
-                                        if player2 != player:  # Ensure the second player is not the same as the first player
-                                            for side2_key in Point.side.keys():
-                                                for shot2_key in Point.shot.keys():
-                                                    valid_point_strings.add(str(player) + cat_key + side_key + shot_key + direction_key + str(player2) + side2_key + shot2_key)
-                            else:
-                                # Generate point strings for all categories, not just forced winners
-                                valid_point_strings.add(str(player) + cat_key + side_key + shot_key + direction_key)                        
+        for keys in product(*[key_to_dict[key].keys() for key in POINT_STRUCTURE.keys()]):
+            point_string = "".join(keys)
+            if point_string[POINT_STRUCTURE['category'].start] == "f":
+                # Introduce a probability to limit the number of forced winners
+                if random.random() < 0.5:
+                    for player2 in range(1, 5):
+                        if player2 != int(point_string[POINT_STRUCTURE['player'].start]):  # Ensure the second player is not the same as the first player
+                            for side2_key in Point.side.keys():
+                                for shot2_key in Point.shot.keys():
+                                    valid_point_strings.add(point_string + str(player2) + side2_key + shot2_key)
+            else:
+                valid_point_strings.add(point_string)
+
         # Adjust the distribution of point strings in the final set
-        forced_winner_strings = [point_string for point_string in valid_point_strings if point_string[1] == "f"]
-        unforced_error_strings = [point_string for point_string in valid_point_strings if point_string[1] == "u"]
-        winner_strings = [point_string for point_string in valid_point_strings if point_string[1] == "w"]
+        forced_winner_strings = [point_string for point_string in valid_point_strings if point_string[POINT_STRUCTURE['category'].start] == "f"]
+        unforced_error_strings = [point_string for point_string in valid_point_strings if point_string[POINT_STRUCTURE['category'].start] == "u"]
+        winner_strings = [point_string for point_string in valid_point_strings if point_string[POINT_STRUCTURE['category'].start] == "w"]
         random.shuffle(forced_winner_strings)
         random.shuffle(unforced_error_strings)
         random.shuffle(winner_strings)
         valid_point_strings = set(forced_winner_strings[:1900] + unforced_error_strings[:1872] + winner_strings[:1872])
-        return valid_point_strings
 
+        return valid_point_strings
 
 
 class Winner(Point):
