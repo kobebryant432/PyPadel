@@ -287,7 +287,7 @@ class PointStatistics:
 
                     for raw_point in raw_input:
                         # Check if the first character of raw_point is a digit
-                        if not raw_point[0].isdigit():
+                        if not raw_point[1].isdigit(): # TODO: Also use POINT_STRUCTURE and not indices 
                             continue
                         point_instance = Point(raw_point)
                         self._process_point(
