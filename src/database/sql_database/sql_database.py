@@ -1,9 +1,10 @@
 import builtins
 import sqlite3
 import contextlib
+import random
 import pandas as pd
 from pathlib import Path
-from pypadel import Match, Player
+from pypadel import Match, Player, Point
 from .schemas import MATCHES_TABLE, PLAYERS_TABLE
 from .crud import MatchCRUD, PlayerCRUD
 from .stats import MatchStats
@@ -25,6 +26,23 @@ class SqlDatabase:
         # Initialize the CRUD managers
         self.match_manager = MatchCRUD(self)
         self.player_manager = PlayerCRUD(self)
+    
+    def populate_database(self, num_matches):
+        # Generate players and point strings inside the method
+        players = [Player("Player 1"), Player("Player 2"), Player("Player 3"), Player("Player 4")]
+        point_strings = list(Point.generate_valid_point_strings())
+
+        num_combinations = 3 * 2  # 3 match types and 2 game advantages
+        num_matches_per_combination = num_matches // num_combinations
+
+        for _ in range(num_matches_per_combination):
+            for match_type in range(3):  # Loop over all match types (0: tie, 1: 3 sets, 2: proset)
+                for adv_game in [True, False]:  # Loop over both game advantages
+                    match = Match.create(match_type, players, adv_game=adv_game)
+                    while not match.finished:
+                        point_string = random.choice(point_strings)
+                        match.play_match([point_string])
+                    self.add_match(match, cat="test")
 
     def table_to_dataframe(self, table_name: str) -> pd.DataFrame:
         """Retrieve the entire table content and return it as a pandas DataFrame."""
