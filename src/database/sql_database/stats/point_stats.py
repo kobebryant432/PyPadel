@@ -175,6 +175,8 @@ class PointStatistics:
                     )
                     for raw_point in raw_input:
                         point_instance = Point(raw_point)
+                        if isinstance(point_instance, InvalidPoint):
+                            continue  # Skip InvalidPoint objects
                         if point_instance.player == player_number:
                             # Increment the total shot-direction count
                             detailed_shot_direction_distribution[
