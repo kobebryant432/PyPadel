@@ -1,5 +1,6 @@
 from .point_mappings import serve_type, player, cat, side, shot, direction, POINT_STRUCTURE, FORCED_WINNER_POINT_STRUCTURE
 import random
+import logging
 from itertools import product
 
 class Point:
@@ -85,7 +86,7 @@ class Point:
         return f"Player {self.player} made a {self.category} on a {self.side} {self.shot_type} in the {self.direction}"
 
     @staticmethod
-    # TODO: this is a rather ugly way of generating valid point strings. It should be further improved.
+    # TODO: this is a rather ugly way of generating valid point strings. It would be nice to dynamically generate them based on the point structure.
     def generate_valid_point_strings():
         # Create a dictionary mapping point structure keys to their corresponding dictionaries
         key_to_dict = {
@@ -99,7 +100,7 @@ class Point:
         }
 
         # Generate all possible combinations of point structure values
-        valid_point_strings = set()
+        valid_point_strings = []
         for keys in product(*[key_to_dict[key].keys() for key in POINT_STRUCTURE.keys()]):
             point_string = "".join(keys)
             if point_string[POINT_STRUCTURE['category'].start] == "f":
@@ -109,18 +110,35 @@ class Point:
                         if player2 != int(point_string[POINT_STRUCTURE['player'].start]):  # Ensure the second player is not the same as the first player
                             for side2_key in Point.side.keys():
                                 for shot2_key in Point.shot.keys():
-                                    valid_point_strings.add(point_string + str(player2) + side2_key + shot2_key)
+                                    valid_point_strings.append(point_string + str(player2) + side2_key + shot2_key)
             else:
-                valid_point_strings.add(point_string)
+                valid_point_strings.append(point_string)
 
         # Adjust the distribution of point strings in the final set
         forced_winner_strings = [point_string for point_string in valid_point_strings if point_string[POINT_STRUCTURE['category'].start] == "f"]
         unforced_error_strings = [point_string for point_string in valid_point_strings if point_string[POINT_STRUCTURE['category'].start] == "u"]
         winner_strings = [point_string for point_string in valid_point_strings if point_string[POINT_STRUCTURE['category'].start] == "w"]
-        random.shuffle(forced_winner_strings)
-        random.shuffle(unforced_error_strings)
-        random.shuffle(winner_strings)
-        valid_point_strings = set(forced_winner_strings[:1900] + unforced_error_strings[:1872] + winner_strings[:1872])
+
+        # Calculate the total number of valid point strings
+        total_points = len(valid_point_strings)
+
+        # Calculate the desired number of each type of point
+        forced_winner_count = int(total_points * 0.4) # distribution based on existing db
+        unforced_error_count = int(total_points * 0.3)
+        winner_count = int(total_points * 0.3)
+
+        # Take the desired number of each type of point
+        forced_winner_strings = random.sample(forced_winner_strings, forced_winner_count)
+
+        # Add duplicates of unforced errors and winners until the desired proportions are reached
+        while len(unforced_error_strings) < unforced_error_count:
+            unforced_error_strings += random.choices(unforced_error_strings, k=unforced_error_count - len(unforced_error_strings))
+
+        while len(winner_strings) < winner_count:
+            winner_strings += random.choices(winner_strings, k=winner_count - len(winner_strings))
+
+        # Combine the lists to form the final set of valid point strings
+        valid_point_strings = forced_winner_strings + unforced_error_strings + winner_strings
 
         return valid_point_strings
 
@@ -142,8 +160,6 @@ class Forced_winner(Point):
         self.side2 = Point.side[string[FORCED_WINNER_POINT_STRUCTURE['side2']]]
         self.shot_type_2 = Point.shot[string[FORCED_WINNER_POINT_STRUCTURE['shot_type_2']]]
 
-import logging
-
 class InvalidPoint(Point):
     def __init__(self, string: str, error: Exception) -> None:
         # Set up logging
@@ -152,7 +168,7 @@ class InvalidPoint(Point):
         # Log the raw point and the error
         logging.info(f"Invalid point: {string}. Error: {error}")
         
-        # Set the attributes to "invalid" or "none"
+        # Set the attributes to "none"
         self.player = "none"
         self.category = "none"
         self.side = "none"
