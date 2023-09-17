@@ -55,26 +55,31 @@ class Point:
             A string containing information about the end of the point.
         """
 
-        self.serve_type = string[POINT_STRUCTURE['serve_type']]
-        self.player = int(string[POINT_STRUCTURE['player']])
-        self.category = Point.cat[string[POINT_STRUCTURE['category']]]
-        self.side = Point.side[string[POINT_STRUCTURE['side']]]
+        try:
+            self.serve_type = string[POINT_STRUCTURE['serve_type']]
+            self.player = int(string[POINT_STRUCTURE['player']])
+            self.category = Point.cat[string[POINT_STRUCTURE['category']]]
+            self.side = Point.side[string[POINT_STRUCTURE['side']]]
 
-        # Dubbel use of letter v -> if high v than it is a Vibora (V) else it is a volley (v)
-        if string[POINT_STRUCTURE['side']] in ["hi", "hd"] and string[POINT_STRUCTURE['shot_type']] == "v":
-            self.shot_type = self.shot["V"]
-        else:
-            # If the shot type from string is not in shot dictionary
-            if string[POINT_STRUCTURE['shot_type']] not in self.shot:
-                if string[POINT_STRUCTURE['shot_type']:] in self.reverse_shot:
-                    self.shot_type = string[POINT_STRUCTURE['shot_type']:]
-                else:
-                    raise ValueError(f"Invalid shot type: {string[POINT_STRUCTURE['shot_type']]}")
+            # Dubbel use of letter v -> if high v than it is a Vibora (V) else it is a volley (v)
+            if string[POINT_STRUCTURE['side']] in ["hi", "hd"] and string[POINT_STRUCTURE['shot_type']] == "v":
+                self.shot_type = self.shot["V"]
             else:
-                self.shot_type = self.shot[string[POINT_STRUCTURE['shot_type']]]
+                # If the shot type from string is not in shot dictionary
+                if string[POINT_STRUCTURE['shot_type']] not in self.shot:
+                    if string[POINT_STRUCTURE['shot_type']:] in self.reverse_shot:
+                        self.shot_type = string[POINT_STRUCTURE['shot_type']:]
+                    else:
+                        raise ValueError(f"Invalid shot type: {string[POINT_STRUCTURE['shot_type']]}")
+                else:
+                    self.shot_type = self.shot[string[POINT_STRUCTURE['shot_type']]]
 
-        self.direction = Point.direction[string[POINT_STRUCTURE['direction']]]
-        self.raw = string
+            self.direction = Point.direction[string[POINT_STRUCTURE['direction']]]
+            self.raw = string
+        except Exception as e:
+            print(f"Error occurred while processing raw point: {string}. Creating an InvalidPoint instead.")
+            self.__class__ = InvalidPoint
+            self.__init__(string, e)
 
     def __str__(self) -> str:
         return f"Player {self.player} made a {self.category} on a {self.side} {self.shot_type} in the {self.direction}"
@@ -137,5 +142,20 @@ class Forced_winner(Point):
         self.side2 = Point.side[string[FORCED_WINNER_POINT_STRUCTURE['side2']]]
         self.shot_type_2 = Point.shot[string[FORCED_WINNER_POINT_STRUCTURE['shot_type_2']]]
 
+import logging
 
-
+class InvalidPoint(Point):
+    def __init__(self, string: str, error: Exception) -> None:
+        # Set up logging
+        logging.basicConfig(filename='invalid_points.log', level=logging.INFO)
+        
+        # Log the raw point and the error
+        logging.info(f"Invalid point: {string}. Error: {error}")
+        
+        # Set the attributes to "invalid" or "none"
+        self.player = "none"
+        self.category = "none"
+        self.side = "none"
+        self.shot_type = "none"
+        self.direction = "none"
+        self.raw = string
