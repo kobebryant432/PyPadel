@@ -89,7 +89,6 @@ class MatchCRUD:
             with contextlib.closing(self.conn.cursor()) as cursor, self.conn:
                 cursor.execute("SELECT * FROM matches WHERE id=?", (pos,))
                 match_record = cursor.fetchone()
-                print(match_record)  # Print the record to debug
                 if match_record:
                     return self._record_to_match_object(match_record)
                 return None
