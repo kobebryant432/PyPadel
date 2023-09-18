@@ -75,7 +75,9 @@ class SqlDatabase:
             return match_stats_instance.export_summary_to_image(summary)
         match_stats = match_stats_instance.get_match_summary()
         serve_stats = match_stats_instance.get_team_serve_percentages()
-        return match_stats, serve_stats
+        break_points = match_stats_instance.get_break_points()
+        golden_points = match_stats_instance.get_golden_points()
+        return match_stats, serve_stats, break_points, golden_points
 
     def export_all(self):
         try:

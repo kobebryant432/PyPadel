@@ -82,6 +82,116 @@ class MatchStats:
         parameters = (self.match_id, team_players[0], team_players[1])
         return base_query, parameters
     
+    def get_break_points(self):
+        """
+        This method calculates the number of break points and converted break points for each team in a match.
+
+        Returns:
+            dict: A dictionary with the number of break points and converted break points for each team.
+        """
+
+        # Initialize counters for break points and converted break points for each team
+        break_points = {
+            "Team 1": {"break_points": 0, "converted_break_points": 0},
+            "Team 2": {"break_points": 0, "converted_break_points": 0}
+        }
+
+        # Map team numbers to team names for easy comparison
+        team_number_to_name = {1: "Team 1", 2: "Team 2"}
+
+        # Get the match instance
+        match_instance = self._get_match_object()
+
+        # Loop over all sets in the match
+        for set_instance in match_instance.sets:
+            # Loop over all games in the set
+            for game_index, game_instance in enumerate(set_instance.games):
+                # Determine the serving player
+                serving_player_number = set_instance.serve_order[game_index % len(set_instance.serve_order)]
+                # Determine the serving team
+                serving_team = "Team 1" if serving_player_number in [1, 2] else "Team 2"
+                # Determine the receiving team
+                receiving_team = "Team 2" if serving_team == "Team 1" else "Team 1"
+
+                # Initialize a flag for break point
+                break_point_flag = False
+
+                # Loop over all points in the game
+                for score, point_instance in game_instance.points.items():
+                    # If the match has adv_game true then a break point is 40-Adv
+                    if match_instance.adv_game and ((serving_team == "Team 1" and score == "40-Adv") or (serving_team == "Team 2" and score == "Adv-40")):
+                        break_points[receiving_team]["break_points"] += 1
+                        break_point_flag = True
+                    # If the match has adv_game false then a break point is 40-40 (golden point)
+                    elif not match_instance.adv_game and score == "40-40":
+                        break_points[receiving_team]["break_points"] += 1
+                        break_point_flag = True
+                    # A break point occurs when the receiving team is one point away from winning the game
+                    elif serving_team == "Team 1" and score in ["0-40", "15-40", "30-40"]:
+                        break_points[receiving_team]["break_points"] += 1
+                        break_point_flag = True
+                    # If team 2 is serving, break points are the reverse in the score
+                    elif serving_team == "Team 2" and score in ["40-0", "40-15", "40-30"]:
+                        break_points[receiving_team]["break_points"] += 1
+                        break_point_flag = True
+                    
+                # If the game was won by the receiving team and a break point occurred, increment the converted break points
+                if break_point_flag and team_number_to_name[game_instance.winner] == receiving_team:
+                    break_points[receiving_team]["converted_break_points"] += 1
+
+        return break_points
+
+    def get_golden_points(self):
+        """
+        This method calculates the number of golden points and converted golden points for each team in a match.
+
+        Returns:
+            dict: A dictionary with the number of golden points and converted golden points for each team.
+        """
+
+        # Initialize counters for golden points and converted golden points for each team
+        golden_points = {
+            "Team 1": {"golden_points": 0, "converted_golden_points": 0},
+            "Team 2": {"golden_points": 0, "converted_golden_points": 0}
+        }
+
+        # Map team numbers to team names for easy comparison
+        team_number_to_name = {1: "Team 1", 2: "Team 2"}
+
+        # Get the match instance
+        match_instance = self._get_match_object()
+
+        # Loop over all sets in the match
+        for set_instance in match_instance.sets:
+            # Loop over all games in the set
+            for game_index, game_instance in enumerate(set_instance.games):
+                # Determine the serving player
+                serving_player_number = set_instance.serve_order[game_index % len(set_instance.serve_order)]
+                # Determine the serving team
+                serving_team = "Team 1" if serving_player_number in [1, 2] else "Team 2"
+                # Determine the receiving team
+                receiving_team = "Team 2" if serving_team == "Team 1" else "Team 1"
+
+                # Initialize a flag for golden point
+                golden_point_flag = False
+
+                # Loop over all points in the game
+                for score, point_instance in game_instance.points.items():
+                    # If the match has adv_game false then a golden point is 40-40
+                    if not match_instance.adv_game and score == "40-40":
+                        golden_points[serving_team]["golden_points"] += 1
+                        golden_points[receiving_team]["golden_points"] += 1
+                        golden_point_flag = True
+
+                # If the game was won by the serving team and a golden point occurred, increment the converted golden points
+                if golden_point_flag and team_number_to_name[game_instance.winner] == serving_team:
+                    golden_points[serving_team]["converted_golden_points"] += 1
+                # If the game was won by the receiving team and a golden point occurred, increment the converted golden points
+                elif golden_point_flag and team_number_to_name[game_instance.winner] == receiving_team:
+                    golden_points[receiving_team]["converted_golden_points"] += 1
+
+        return golden_points
+    
     def get_team_serve_percentages(self):
         """
         This method calculates the first and second serve percentages for each team in a match.
@@ -106,9 +216,6 @@ class MatchStats:
         team1 = match_instance.players[:2]
         team2 = match_instance.players[2:]
 
-        print(f"Team 1: {[player.name for player in team1]}")
-        print(f"Team 2: {[player.name for player in team2]}")
-
         # Get player numbers for both teams
         team1_numbers = [1, 2]
         team2_numbers = [3, 4]
@@ -122,24 +229,14 @@ class MatchStats:
                 serving_player_number = set_instance.serve_order[game_index % len(set_instance.serve_order)]
                 # Determine the serving team
                 serving_team = "Team 1" if serving_player_number in [1, 2] else "Team 2"
-                print(f"Game {game_index + 1} is being served by {serving_team}")
 
                 # Loop over all points in the game
                 for score, point_instance in game_instance.points.items():
-                    # Debugging statements to understand the attributes of each point instance
-                    print(f"Point {score}:")
-                    print(f"  Serve Type: {point_instance.serve_type}")
-                    print(f"  Category: {point_instance.category}")
-                    print(f"  Player: {point_instance.player}")
 
                     # Determine the serving team numbers
                     serving_team_numbers = team1_numbers if serving_team == "Team 1" else team2_numbers
                     # Determine the opponent team numbers
                     opponent_team_numbers = team2_numbers if serving_team == "Team 1" else team1_numbers
-
-                    print(f"  Serving Team Numbers: {serving_team_numbers}")
-                    print(f"  Opponent Team Numbers: {opponent_team_numbers}")
-                    print(f" Player {point_instance.player} is {player_number_to_name[point_instance.player]}")
                     
                     # If the serve type is "e", it's a first serve
                     if point_instance.serve_type == "e":
@@ -159,15 +256,10 @@ class MatchStats:
                             or (point_instance.category == "Unforced Error" and point_instance.player in opponent_team_numbers)
                         ):
                             serve_stats[serving_team]["second_serve_points_won"] += 1
-                
-                # Print the serve stats after each game to debug
-                print(f"Serve stats after game {game_index + 1}:")
+
                 for team, stats in serve_stats.items():
                     first_serve_percentage = (stats["first_serve_points_won"] / stats["first_serves"]) * 100 if stats["first_serves"] != 0 else 0
                     second_serve_percentage = (stats["second_serve_points_won"] / stats["second_serves"]) * 100 if stats["second_serves"] != 0 else 0
-                    print(f"  {team}:")
-                    print(f"    First Serve Percentage: {first_serve_percentage}%")
-                    print(f"    Second Serve Percentage: {second_serve_percentage}%")
 
         # Calculate serve percentages for each team
         for team, stats in serve_stats.items():
@@ -271,6 +363,15 @@ class MatchStats:
         # Get serve stats
         serve_stats = self.get_team_serve_percentages()
 
+        # Get break points and golden points
+        break_points = self.get_break_points()
+        golden_points = self.get_golden_points()
+
+        # Add the formatted break and golden points to the summary
+        for team in ["Team 1", "Team 2"]:
+            summary[team]["Break Points"] = f'{break_points[team]["converted_break_points"]} / {break_points[team]["break_points"]}'
+            summary[team]["Golden Points"] = f'{golden_points[team]["converted_golden_points"]} / {golden_points[team]["golden_points"]}'
+
         # If no output_path is provided, construct a dynamic one
         if not output_path:
             tournament = match_detail["tournament"]
@@ -361,6 +462,8 @@ class MatchStats:
                 "Total Points Won": (img.width * 1 / 4, 420),
                 "Avg Unforced Errors/Game": (img.width * 1 / 4, 460),
                 "Avg Winners/Game": (img.width * 1 / 4, 500),
+                "Break Points": (img.width * 1 / 4, 540),
+                "Golden Points": (img.width * 1 / 4, 580),
             },
             "Team 2": {
                 "Unforced Errors": (img.width * 3 / 4, 300),
@@ -369,6 +472,8 @@ class MatchStats:
                 "Total Points Won": (img.width * 3 / 4, 420),
                 "Avg Unforced Errors/Game": (img.width * 3 / 4, 460),
                 "Avg Winners/Game": (img.width * 3 / 4, 500),
+                "Break Points": (img.width * 3 / 4, 540),
+                "Golden Points": (img.width * 3 / 4, 580),
             },
             "Labels": {
                 "Unforced Errors": (img.width // 2, 300),
@@ -377,22 +482,24 @@ class MatchStats:
                 "Total Points Won": (img.width // 2, 420),
                 "Avg Unforced Errors/Game": (img.width // 2, 460),
                 "Avg Winners/Game": (img.width // 2, 500),
+                "Break Points": (img.width // 2, 540),
+                "Golden Points": (img.width // 2, 580),
             },
         }
 
         # Define positions for the serve stats
         serve_positions = {
             "Team 1": {
-                "first_serve_percentage": (img.width * 1 / 4, 540),
-                "second_serve_percentage": (img.width * 1 / 4, 580),
+                "first_serve_percentage": (img.width * 1 / 4, 620),
+                "second_serve_percentage": (img.width * 1 / 4, 660),
             },
             "Team 2": {
-                "first_serve_percentage": (img.width * 3 / 4, 540),
-                "second_serve_percentage": (img.width * 3 / 4, 580),
+                "first_serve_percentage": (img.width * 3 / 4, 620),
+                "second_serve_percentage": (img.width * 3 / 4, 660),
             },
             "Labels": {
-                "%pts won 1st serve": (img.width // 2, 540),
-                "%pts won 2nd serve": (img.width // 2, 580),
+                "%pts won 1st serve": (img.width // 2, 620),
+                "%pts won 2nd serve": (img.width // 2, 660),
             },
         }
 
@@ -411,8 +518,6 @@ class MatchStats:
         # Draw the serve stats onto the image at their respective positions without labels
         for team, stats in serve_stats.items():
             for key, value in stats.items():
-                print(key)
-                print(value)
                 if key in serve_positions[team]:  # Check if the key exists in serve_positions dictionary
                     x, y = serve_positions[team][key]
                     draw.text(
