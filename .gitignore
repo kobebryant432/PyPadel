@@ -1,6 +1,6 @@
 #Conda enviroments
 .conda
-
+.venv
 #Pycache
 __pycache__
 *.pyc

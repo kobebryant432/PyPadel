@@ -1,6 +1,7 @@
 import os #nopep8
 import sys #nopep8
 from pathlib import Path #nopep8
+
 import builtins
 
 # Add the 'src' directory to sys.path
@@ -26,7 +27,7 @@ m = start_match()
 # Export the match statistics of the analysed match.
 m.export()
 # # Export the 'raw' data of this match to be added to a database input excel later.
-# m.export_raw(file= 'in/local_inputs.xlsx')
+m.export_raw(file= 'in/local_inputs.xlsx')
 db.add_match(m=m, cat=builtins.input('Fill in the Category: '))
 db.export_raw()
 db.close()
