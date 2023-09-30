@@ -47,6 +47,7 @@ class Point:
     reverse_shot = {value: key for key, value in shot.items()}
 
     def _process_point_string(self, string: str) -> None:
+        self.raw = string
         try:
             try:
                 self.serve_type = string[Point.POINT_STRUCTURE['serve_type']]

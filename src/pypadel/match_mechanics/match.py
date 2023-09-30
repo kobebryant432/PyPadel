@@ -14,12 +14,6 @@ class Match:
     team = {1: 0, 2: 0, 3: 1, 4: 1}
     team_map = {"w": 0, "Winner": 0, "f": 0, "Forced Winner": 0, "u": 1, "Unforced Error": 1}
 
-    # Create a new dictionary that maps the values in input_map to their keys
-    reverse_input_map = {v: k for k, v in input_map.items()}
-
-    # Merge input_map and reverse_input_map to create a bidirectional map
-    bidirectional_input_map = {**input_map, **reverse_input_map}
-
     @classmethod
     def create(cls, message_type, *args, **kwargs):
         MESSAGE_TYPE_TO_CLASS_MAP = {
@@ -205,6 +199,33 @@ class Match:
         m.play_match(raw_input_data)
 
         return m
+    
+    def get_point_details(self):
+        # Create a list to store the point details
+        point_details = []
+
+        # Iterate over each set
+        for set_index, set_instance in enumerate(self.sets, start=1):
+            # Iterate over each game in the set
+            for game_index, game_instance in enumerate(set_instance.games, start=1):
+                # Iterate over each point in the game
+                for score, point_instance in game_instance.points.items():
+                    # Append the point details to the list
+                    point_details.append(
+                        {
+                            "Set": set_index,
+                            "Set Score": f"{set_instance.score_t1}-{set_instance.score_t2}",
+                            "Game": game_index,
+                            "Score": score,
+                            "Raw Point String": point_instance.raw,
+                            "Point": str(point_instance),
+                        }
+                    )
+
+        # Convert the list of point details to a DataFrame
+        df = pd.DataFrame(point_details)
+
+        return df
 
     def get_summary(self):
         def color(val):
