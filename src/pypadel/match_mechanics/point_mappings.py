@@ -16,15 +16,15 @@ FORCED_WINNER_POINT_STRUCTURE = {
     "shot_type_2": slice(10, 11),
 }
 
-serve_type = {"e": "First (eerste) Serve", "t": "Second (tweede) Serve"}
+serve_type = {"e": "First Serve", "t": "Second Serve", "O": "Default Serve Type"}
 player = {
     "1": "Player 1",
     "2": "Player 2",
     "3": "Player 3",
     "4": "Player 4",
 }
-cat = {"f": "Forced Winner", "u": "Unforced Error", "w": "Winner"}
-side = {"fh": "Forehand", "bh": "Backhand", "hi": "High", "hd": "High defense"}
+cat = {"f": "Forced Winner", "u": "Unforced Error", "w": "Winner", "C": "Default Category"}
+side = {"fh": "Forehand", "bh": "Backhand", "hi": "High", "hd": "High defense", "Si": "Default Side"}
 shot = {
     "v": "Volley",
     "o": "Other",
@@ -39,6 +39,7 @@ shot = {
     "j": "bajada",
     "f": "fake",
     "z": "double fault",
+    "S": "Default Shot",
 }
 direction = {
     "c": "cross",
@@ -50,4 +51,5 @@ direction = {
     "k": "dunk",
     "g": "globo",
     "f": "fence",
+    "D": "Default Direction",
 }

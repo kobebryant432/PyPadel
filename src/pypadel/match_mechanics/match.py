@@ -12,7 +12,13 @@ class Match:
     type = -1
     input_map = {"f": "Forced Winner", "u": "Unforced Error", "w": "Winner"}
     team = {1: 0, 2: 0, 3: 1, 4: 1}
-    team_map = {"w": 0, "f": 0, "u": 1}
+    team_map = {"w": 0, "Winner": 0, "f": 0, "Forced Winner": 0, "u": 1, "Unforced Error": 1}
+
+    # Create a new dictionary that maps the values in input_map to their keys
+    reverse_input_map = {v: k for k, v in input_map.items()}
+
+    # Merge input_map and reverse_input_map to create a bidirectional map
+    bidirectional_input_map = {**input_map, **reverse_input_map}
 
     @classmethod
     def create(cls, message_type, *args, **kwargs):
@@ -73,11 +79,7 @@ class Match:
             return team1_wins >= 2 or team2_wins >= 2
 
     def update(self, x, silent=False):
-        point_data = {attr: x[s] for attr, s in POINT_STRUCTURE.items()}
-        if point_data['category'] == "f":
-            p = Forced_winner(x)
-        else:
-            p = Point(x)
+        p = Point(x)
 
         self.raw_score.append(
             (
@@ -95,8 +97,8 @@ class Match:
             )
         )
 
-        team_action = Match.team[int(point_data['player'])]
-        point_winner = (team_action + Match.team_map[point_data['category']]) % 2
+        team_action = Match.team[p.player]
+        point_winner = (team_action + Match.team_map[p.category]) % 2
         self.current_set.update(point_winner + 1, p)
 
         if self.current_set.finished:

@@ -1,4 +1,4 @@
-from pypadel.match_mechanics import Player, Match
+from pypadel.match_mechanics import Player, Match, Point, InvalidPoint
 from pypadel.match_mechanics.point_mappings import POINT_STRUCTURE, FORCED_WINNER_POINT_STRUCTURE, serve_type, cat, side, shot, direction
 import pandas as pd
 from datetime import datetime
@@ -52,7 +52,7 @@ def get_valid_date():
             print("Invalid date format. Please enter in the format YYYY-MM-DD.")
 
 
-def start_match():
+def start_match(point_structure=POINT_STRUCTURE, forced_winner_point_structure=FORCED_WINNER_POINT_STRUCTURE):
     date = get_valid_date()
     tournament = input("Tournament name: ")
     r = input("Round :")
@@ -84,7 +84,7 @@ def start_match():
         x = input()
         if x == "Q":
             break
-        while not input_ok(x):
+        while not input_ok(x, point_structure, forced_winner_point_structure):
             if x == "Q":
                 break
             x = input(f"{x} is an invalid input. Try again")
@@ -94,7 +94,7 @@ def start_match():
 
     return m
 
-def input_ok(x):
+def input_ok(x, point_structure=POINT_STRUCTURE, forced_winner_point_structure=FORCED_WINNER_POINT_STRUCTURE):
     if x == "":
         print(f"No input")
         return False
@@ -107,11 +107,12 @@ def input_ok(x):
     # Allow "u" as a valid input for undoing
     if x.lower() == "u":
         return True
-    min_length = max(s.stop for s in POINT_STRUCTURE.values())
+
+    min_length = max(s.stop for s in point_structure.values())
     if len(x) < min_length:
         print("Input length is too short")
         return False
-    point_data = {attr: x[s] for attr, s in POINT_STRUCTURE.items()}
+    point_data = {attr: x[s] for attr, s in point_structure.items()}
     if point_data['serve_type'] not in serve_type:
         print(f"Serve type is incorrect -> got {point_data['serve_type']}")
         return False
@@ -131,11 +132,11 @@ def input_ok(x):
         print(f"Direction is incorrect -> got {point_data['direction']} which is not in {direction}")
         return False
     if point_data['category'] == "f":
-        min_length_forced = max(s.stop for s in FORCED_WINNER_POINT_STRUCTURE.values())
+        min_length_forced = max(s.stop for s in forced_winner_point_structure.values())
         if len(x) < min_length_forced:
             print("Input length is too short for a forced winner point")
             return False
-        forced_winner_data = {attr: x[s] for attr, s in FORCED_WINNER_POINT_STRUCTURE.items()}
+        forced_winner_data = {attr: x[s] for attr, s in forced_winner_point_structure.items()}
         if forced_winner_data['player2'] not in pl:
             print(f"Player making the forced error is incorrect -> got {forced_winner_data['player2']}")
             return False
@@ -149,4 +150,12 @@ def input_ok(x):
                 f"Shot of player making the forced error is incorrect -> got {forced_winner_data['shot_type_2']} which is not in {shot}"
             )
             return False
+        
+    # Try to initialize a Point object with the input string
+    point = Point(x)
+    # If the Point object becomes an InvalidPoint, then the input is not valid
+    if isinstance(point, InvalidPoint):
+        print(f"Invalid point input: {x}")
+        return False
+    
     return True
