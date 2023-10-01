@@ -1,40 +1,7 @@
 // OptionsDisplay.js
 import React from 'react';
 
-const OPTIONS = {
-  0: {"e": "First Serve", "t": "Second Serve"},
-  1: {"1": "Player 1", "2": "Player 2", "3": "Player 3", "4": "Player 4"},
-  2: {"f": "Forced Winner", "u": "Unforced Error", "w": "Winner",},
-  3: {"fh": "Forehand", "bh": "Backhand", "hi": "High", "hd": "High defense"},
-  4: {
-    "v": "Volley",
-    "o": "Other",
-    "n": "Normal",
-    "g": "Glass",
-    "r": "return",
-    "l": "lob",
-    "s": "smash",
-    "V": "vibora",
-    "k": "kick",
-    "b": "bandeja",
-    "j": "bajada",
-    "f": "fake",
-    "z": "double fault",
-  },
-  5: {
-    "c": "cross",
-    "p": "parallel",
-    "n": "net",
-    "l": "long",
-    "m": "middle",
-    "d": "dropshot",
-    "k": "dunk",
-    "g": "globo",
-    "f": "fence",
-  },
-};
-function OptionsDisplay({ activeIndex, activeChar, onOptionClick }) {
-    const options = OPTIONS[activeIndex];
+function OptionsDisplay({ activeIndex, activeChar, onOptionClick, options }) {
     const numColumns = Math.min(4, Object.keys(options).length); // Determine the number of columns
   
     return (
