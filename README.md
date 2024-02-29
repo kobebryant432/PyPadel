@@ -14,9 +14,9 @@ PyPadel is a comprehensive tool designed for generating detailed statistics for 
 
 Ensure you have Python 3.10 or later installed on your system. Dependencies include pandas for data manipulation and SQLite for database management.
 
-   ```
+```
    pip install -r requirements.txt
-   ```
+```
 
 ### Usage
 
@@ -24,6 +24,7 @@ For comprehensive usage examples, including match handling and database manageme
 
 1. **Initializing the Database**:
    To initialize or load an existing database for storing match data, use:
+
    ```python
     from database import SqlDatabase
     # This either opens an existing database or creates a new one
@@ -32,23 +33,23 @@ For comprehensive usage examples, including match handling and database manageme
 
     db = SqlDatabase.init_from_existing(db_filename="path/to/padel_matches.db")
    ```
-
 2. **Adding Match Data**:
    You can input match details either manually or by importing them from an Excel file:
+
    ```python
    m = start_match()
    db.add_match(m=m)
    ```
-
 3. **Generating Statistics**:
    To access detailed statistics of matches and export them for further analysis:
+
    ```python
    match_stats = db.get_match_stats(match_id=21)
    print(match_stats)
    ```
-
 4. **Exporting Data**:
    For exporting the database content to Excel or as raw data:
+
    ```python
    db.export_all()
    ```
@@ -59,4 +60,4 @@ Contributions to PyPadel are welcome! Whether it's bug reports, feature requests
 
 ## License
 
-PyPadel is open-source software licensed under the MIT license.
+PyPadel is open-source software licensed under the Apache 2.0 license.
