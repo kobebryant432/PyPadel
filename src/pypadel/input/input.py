@@ -1,5 +1,13 @@
 from pypadel.match_mechanics import Player, Match, Point, InvalidPoint
-from pypadel.match_mechanics.point_mappings import POINT_STRUCTURE, FORCED_WINNER_POINT_STRUCTURE, serve_type, cat, side, shot, direction
+from pypadel.match_mechanics.point_mappings import (
+    POINT_STRUCTURE,
+    FORCED_WINNER_POINT_STRUCTURE,
+    serve_type,
+    cat,
+    side,
+    shot,
+    direction,
+)
 import pandas as pd
 from datetime import datetime
 
@@ -52,7 +60,10 @@ def get_valid_date():
             print("Invalid date format. Please enter in the format YYYY-MM-DD.")
 
 
-def start_match(point_structure=POINT_STRUCTURE, forced_winner_point_structure=FORCED_WINNER_POINT_STRUCTURE):
+def start_match(
+    point_structure=POINT_STRUCTURE,
+    forced_winner_point_structure=FORCED_WINNER_POINT_STRUCTURE,
+):
     date = get_valid_date()
     tournament = input("Tournament name: ")
     r = input("Round :")
@@ -94,11 +105,16 @@ def start_match(point_structure=POINT_STRUCTURE, forced_winner_point_structure=F
 
     return m
 
-def input_ok(x, point_structure=POINT_STRUCTURE, forced_winner_point_structure=FORCED_WINNER_POINT_STRUCTURE):
+
+def input_ok(
+    x,
+    point_structure=POINT_STRUCTURE,
+    forced_winner_point_structure=FORCED_WINNER_POINT_STRUCTURE,
+):
     if x == "":
         print(f"No input")
         return False
-    x = x.lower()
+    # x = x.lower() removed this as some inputs are case sensitive in our generated tests, could be revised at some point
     pl = {"1", "2", "3", "4"}
     if x[0] == "#" and x[1] in pl:
         return True
@@ -113,49 +129,62 @@ def input_ok(x, point_structure=POINT_STRUCTURE, forced_winner_point_structure=F
         print("Input length is too short")
         return False
     point_data = {attr: x[s] for attr, s in point_structure.items()}
-    if point_data['serve_type'] not in serve_type:
+    print(point_data)
+    if point_data["serve_type"] not in serve_type:
         print(f"Serve type is incorrect -> got {point_data['serve_type']}")
         return False
-    if point_data['player'] not in pl:
+    if point_data["player"] not in pl:
         print(f"Player is incorrect -> got {point_data['player']}")
         return False
-    if point_data['category'] not in cat:
-        print(f"Category is incorrect -> got {point_data['category']} which is not in {cat}")
+    if point_data["category"] not in cat:
+        print(
+            f"Category is incorrect -> got {point_data['category']} which is not in {cat}"
+        )
         return False
-    if point_data['side'] not in side:
-        print(f"The side is incorrect -> got {point_data['side']} which is not in {side}")
+    if point_data["side"] not in side:
+        print(
+            f"The side is incorrect -> got {point_data['side']} which is not in {side}"
+        )
         return False
-    if point_data['shot_type'] not in shot:
-        print(f"Shot is incorrect -> got {point_data['shot_type']} which is not in {shot}")
+    if point_data["shot_type"] not in shot:
+        print(
+            f"Shot is incorrect -> got {point_data['shot_type']} which is not in {shot}"
+        )
         return False
-    if point_data['direction'] not in direction:
-        print(f"Direction is incorrect -> got {point_data['direction']} which is not in {direction}")
+    if point_data["direction"] not in direction:
+        print(
+            f"Direction is incorrect -> got {point_data['direction']} which is not in {direction}"
+        )
         return False
-    if point_data['category'] == "f":
+    if point_data["category"] == "f":
         min_length_forced = max(s.stop for s in forced_winner_point_structure.values())
         if len(x) < min_length_forced:
             print("Input length is too short for a forced winner point")
             return False
-        forced_winner_data = {attr: x[s] for attr, s in forced_winner_point_structure.items()}
-        if forced_winner_data['player2'] not in pl:
-            print(f"Player making the forced error is incorrect -> got {forced_winner_data['player2']}")
+        forced_winner_data = {
+            attr: x[s] for attr, s in forced_winner_point_structure.items()
+        }
+        if forced_winner_data["player2"] not in pl:
+            print(
+                f"Player making the forced error is incorrect -> got {forced_winner_data['player2']}"
+            )
             return False
-        if forced_winner_data['side2'] not in side:
+        if forced_winner_data["side2"] not in side:
             print(
                 f"The side of player making the forced error is incorrect -> got {forced_winner_data['side2']} which is not in {side}"
             )
             return False
-        if forced_winner_data['shot_type_2'] not in shot:
+        if forced_winner_data["shot_type_2"] not in shot:
             print(
                 f"Shot of player making the forced error is incorrect -> got {forced_winner_data['shot_type_2']} which is not in {shot}"
             )
             return False
-        
+
     # Try to initialize a Point object with the input string
     point = Point(x)
     # If the Point object becomes an InvalidPoint, then the input is not valid
     if isinstance(point, InvalidPoint):
         print(f"Invalid point input: {x}")
         return False
-    
+
     return True
