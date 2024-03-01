@@ -129,7 +129,6 @@ def input_ok(
         print("Input length is too short")
         return False
     point_data = {attr: x[s] for attr, s in point_structure.items()}
-    print(point_data)
     if point_data["serve_type"] not in serve_type:
         print(f"Serve type is incorrect -> got {point_data['serve_type']}")
         return False
