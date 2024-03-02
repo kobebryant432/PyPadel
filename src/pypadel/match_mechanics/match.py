@@ -1,24 +1,25 @@
 import pandas as pd
 import numpy as np
-from .set import *
-from .points import *
-from .player import *
-from datetime import date
+from .set import Set, Proset, Tiebreak_set
+from .points import Point, Forced_winner
+from .player import Player
+from .point_mappings import POINT_STRUCTURE, FORCED_WINNER_POINT_STRUCTURE
+from datetime import date, datetime
 import openpyxl
 
 
 class Match:
     type = -1
-    # Convention -> player 1 and 3 on the left, player 2 and 4 on the right -> seems to be wrong
     input_map = {"f": "Forced Winner", "u": "Unforced Error", "w": "Winner"}
     team = {1: 0, 2: 0, 3: 1, 4: 1}
-    team_map = {"w": 0, "f": 0, "u": 1}
+    team_map = {"w": 0, "Winner": 0, "f": 0, "Forced Winner": 0, "u": 1, "Unforced Error": 1}
 
     @classmethod
     def create(cls, message_type, *args, **kwargs):
         MESSAGE_TYPE_TO_CLASS_MAP = {
             0: Match_tie,
             1: Match_3_sets,
+            2: Match_Proset,
         }
 
         if message_type not in MESSAGE_TYPE_TO_CLASS_MAP:
@@ -34,25 +35,45 @@ class Match:
         r="None",
         adv_game=False,
     ) -> None:
-        self.date = date
+        # Ensure date is a date object and in the consistent format
+        if isinstance(date, str):
+            try:
+                self.date = datetime.strptime(date, "%Y-%m-%d").date()
+            except ValueError:
+                raise ValueError(
+                    f"Invalid date format for {date}. Expected format: YYYY-MM-DD"
+                )
+        else:
+            self.date = date
+
         self.tournament = tournament
         self.r = r
         self.players = players
         self.raw_score = []
         self.raw_input = []
         self.adv_game = adv_game
-        self.current_set = Set(adv_game=adv_game)
-        self.sets = []
+        self.sets = []  # changed order of this operation
+        self.current_set = self.new_set()
         self.finished = False
 
     def __str__(self) -> str:
-        return f"A {self.r} match in {self.tournament} on {self.date} between {self.players[0].name}/{self.players[1].name} vs {self.players[2].name}/{self.players[3].name}"
+        match_type = self.__class__.__name__
+        return f"A {match_type} {self.r} match in {self.tournament} on {self.date} between {self.players[0].name}/{self.players[1].name} vs {self.players[2].name}/{self.players[3].name}"
+
+    def check_match_finished(self):
+        team1_wins = sum(1 for s in self.sets if s.winner == 1)
+        team2_wins = sum(1 for s in self.sets if s.winner == 2)
+        
+        # Check the match type
+        if isinstance(self, Match_Proset):
+            # For Proset, a team needs to win 1 set
+            return team1_wins >= 1 or team2_wins >= 1
+        else:
+            # For other match types, a team needs to win 2 sets
+            return team1_wins >= 2 or team2_wins >= 2
 
     def update(self, x, silent=False):
-        if x[1] == "f":
-            p = Forced_winner(x)
-        else:
-            p = Point(x)
+        p = Point(x)
 
         self.raw_score.append(
             (
@@ -70,13 +91,16 @@ class Match:
             )
         )
 
-        team_action = Match.team[int(x[0])]
-        point_winner = (team_action + Match.team_map[x[1]]) % 2
+        team_action = Match.team[p.player]
+        point_winner = (team_action + Match.team_map[p.category]) % 2
         self.current_set.update(point_winner + 1, p)
 
         if self.current_set.finished:
             self.sets.append(self.current_set)
             self.current_set = self.new_set()
+            if self.check_match_finished():
+                self.finished = True
+                return
             if not silent:  # Only print if silent mode is not enabled
                 for i, se in enumerate(self.sets):
                     print(i, se)
@@ -105,30 +129,31 @@ class Match:
             self.raw_input.append(l)
             self.update(l)
 
-    def get_points_in_category(self, category_name, player_name=None):
-        """
-        Returns the number of points in a specified category for a specific player during a match.
+    def total_games_played(self):
+        total_games = 0
 
-        Parameters:
-        - category_name (str): Name of the category (e.g. 'Winner', 'Unforced Error', 'Forced Winner')
-        - player_name (str, optional): Name of the player. If None, returns points in the category for the whole match.
+        def games_from_tiebreak(tiebreak_game):
+            return len(tiebreak_game.points) / 5.5
 
-        Returns:
-        int: Number of points in the specified category for the specified player (or for the whole match if no player specified).
-        """
+        # Count games from finished sets
+        for set_ in self.sets:
+            # Regular games count
+            total_games += len(set_.games)
 
-        # If a player name is provided, count the points for that player
-        if player_name:
-            count = sum(
-                1
-                for raw in self.raw_score
-                if raw[6] == category_name and raw[4] == player_name
-            )
-        # If no player name is provided, count the points for the entire match
-        else:
-            count = sum(1 for raw in self.raw_score if raw[6] == category_name)
+            # Check for tiebreaks based on final set scores
+            if (set_.score_t1 == 7 and set_.score_t2 == 6) or (
+                set_.score_t1 == 6 and set_.score_t2 == 7
+            ):
+                total_games += games_from_tiebreak(set_.games[-1])
+            elif (set_.score_t1 == 9 and set_.score_t2 == 8) or (
+                set_.score_t1 == 8 and set_.score_t2 == 9
+            ):
+                total_games += games_from_tiebreak(set_.games[-1])
+            # Check for supertiebreaks (represented as Tiebreak_set)
+            elif isinstance(set_, Tiebreak_set):
+                total_games += games_from_tiebreak(set_.current_game)
 
-        return count
+        return total_games
 
     @classmethod
     def from_record(cls, record):
@@ -174,6 +199,33 @@ class Match:
         m.play_match(raw_input_data)
 
         return m
+    
+    def get_point_details(self):
+        # Create a list to store the point details
+        point_details = []
+
+        # Iterate over each set
+        for set_index, set_instance in enumerate(self.sets, start=1):
+            # Iterate over each game in the set
+            for game_index, game_instance in enumerate(set_instance.games, start=1):
+                # Iterate over each point in the game
+                for score, point_instance in game_instance.points.items():
+                    # Append the point details to the list
+                    point_details.append(
+                        {
+                            "Set": set_index,
+                            "Set Score": f"{set_instance.score_t1}-{set_instance.score_t2}",
+                            "Game": game_index,
+                            "Score": score,
+                            "Raw Point String": point_instance.raw,
+                            "Point": str(point_instance),
+                        }
+                    )
+
+        # Convert the list of point details to a DataFrame
+        df = pd.DataFrame(point_details)
+
+        return df
 
     def get_summary(self):
         def color(val):
@@ -418,3 +470,15 @@ class Match_3_sets(Match):
 
     def new_set(self):
         return Set(adv_game=self.adv_game)
+
+
+class Match_Proset(Match):
+    type = 2
+
+    def __init__(
+        self, players, date=date.today(), tournament="practise", r="None", adv_game=True
+    ) -> None:
+        super().__init__(players, date, tournament, r, adv_game=adv_game)
+
+    def new_set(self):
+        return Proset()

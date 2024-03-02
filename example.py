@@ -1,6 +1,6 @@
-import os #nopep8
-import sys #nopep8
-from pathlib import Path #nopep8
+import os  # nopep8
+import sys  # nopep8
+from pathlib import Path  # nopep8
 import builtins
 
 # Add the 'src' directory to sys.path
@@ -13,31 +13,47 @@ sys.path.append(str(src_path))  # Add 'src' directory to sys.path
 from pypadel import *
 from database import *
 
+# These point_structures can be updated if you want to add more/less attributes to the input, only these attributes will be checked.
+# Easiest way is to comment out certain elements, you can't add new elements (they will not be processed). Updating the slices is not necessary.
+INPUT_POINT_STRUCTURE = {
+    "serve_type": slice(0, 1),
+    "player": slice(1, 2),
+    "category": slice(2, 3),
+    "side": slice(3, 5),
+    "shot_type": slice(5, 6),
+    "direction": slice(6, 7),
+}
+
+INPUT_FORCED_WINNER_POINT_STRUCTURE = {
+    **INPUT_POINT_STRUCTURE,
+    "player2": slice(7, 8),
+    "side2": slice(8, 10),
+    "shot_type_2": slice(10, 11),
+}
+
 # add a data path
 db_path = Path(current_working_directory) / "data" / "db"
 xlsx_path = Path(current_working_directory) / "data" / "xlsx"
 
-db = SqlDatabase.init_from_existing(db_filename=db_path/"test.db")
+db = SqlDatabase.init_from_existing(db_filename=db_path / "test.db")
 
 
-
-
-m = start_match()
+m = start_match(INPUT_POINT_STRUCTURE, INPUT_FORCED_WINNER_POINT_STRUCTURE)
 # Export the match statistics of the analysed match.
-m.export()
+# m.export()
 # # Export the 'raw' data of this match to be added to a database input excel later.
 # m.export_raw(file= 'in/local_inputs.xlsx')
-db.add_match(m=m, cat=builtins.input('Fill in the Category: '))
+db.add_match(m=m, cat=builtins.input("Fill in the Category: "))
 db.export_raw()
 db.close()
-    
-#Example 2 - Loading a db
+
+# Example 2 - Loading a db
 # db = database('test') 4ubhnl
-# db.load_db('in/input_clean.xlsx') 
+# db.load_db('in/input_clean.xlsx')
 # db.export_all()
 
 # Initialize your database
-# D = database('P1000 Men') 
+# D = database('P1000 Men')
 # # # Load the input dataset - note that if there is incorrect input you will need to correct it.
 # D.load_db('in/local_inputs.xlsx')
 
@@ -45,7 +61,7 @@ db.close()
 # #M_1000.add_match(m) # Add match m
 # M_1000.add_match(M_1000.matches['match'][0]) # A working example which adds a copy of the first match to the db.
 
-# #Save the raw data from your input 
+# #Save the raw data from your input
 # #-> Good to do if you made corrections or if you added a match. Corrections will be made.
 # M_1000.export_all_raw('in/input.xlsx',sheetname='Heren 1000')
 # #Export all the analysis of each match in the database.

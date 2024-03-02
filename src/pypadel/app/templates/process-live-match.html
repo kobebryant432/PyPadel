@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Live Match</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+
+<body class="d-flex flex-column align-items-center justify-content-center vh-100">
+
+    <!-- Dark Mode Toggle -->
+    <div class="position-fixed top-0 end-0 m-3">
+        <button id="darkModeToggle" class="btn btn-link">
+            <i id="darkModeIcon" class="bi bi-sun-fill"></i> <!-- Sun icon for light mode -->
+        </button>
+    </div>
+
+    <div class="container">
+        <h1 class="text-center mb-4">Input Live Match</h1>
+        
+        <form action="/process-live-match" method="post">
+            
+            <!-- Team Information -->
+            <section class="mb-4">
+                <h2>Team Information</h2>
+                <div class="row mb-4">
+                    <!-- Players' Names for Team 1 -->
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>Team 1</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="player1" class="form-label">Player 1 Name</label>
+                                    <input type="text" class="form-control" id="player1" name="player1" placeholder="Player on the right, e.g. Juan Lebrón" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="player2" class="form-label">Player 2 Name</label>
+                                    <input type="text" class="form-control" id="player2" name="player2" placeholder="Player on the left, e.g. Alejandro Galán" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Players' Names for Team 2 -->
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>Team 2</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="player3" class="form-label">Player 3 Name</label>
+                                    <input type="text" class="form-control" id="player3" name="player3" placeholder="Player on the right, e.g. Arturo Coello" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="player4" class="form-label">Player 4 Name</label>
+                                    <input type="text" class="form-control" id="player4" name="player4" placeholder="Player on the left, e.g. Agustín Tapia" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Match Details -->
+            <section class="mb-4">
+                <h2>Match Details</h2>
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
+                                <label for="date" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="date" name="date" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
+                                <label for="round" class="form-label">Round</label>
+                                <input type="text" class="form-control" id="round" name="round" placeholder="e.g. Final" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
+                                <label for="tournament" class="form-label">Tournament</label>
+                                <input type="text" class="form-control" id="tournament" name="tournament" placeholder="e.g. Madrid Open" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
+                                <label for="type" class="form-label">Type</label>
+                                <select class="form-control" id="type" name="type" required>
+                                    <option value="" disabled selected>Select Match Type</option>
+                                    <option value="0">Tiebreak Match</option>
+                                    <option value="1">Three-Set Match</option>
+                                    <option value="2">Proset Match</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
+                                <label for="category" class="form-label">Category</label>
+                                <input type="text" class="form-control" id="category" name="category" placeholder="e.g. WPT Women" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
+                                <label for="advGame" class="form-label">Advantage Game</label>
+                                <select class="form-control" id="advGame" name="advGame" required>
+                                    <option value="" disabled selected>Playing with advantage?</option>
+                                    <option value="0">False (Golden Point)</option>
+                                    <option value="1">True (Advantage on 40-40)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <button type="submit" class="btn btn btn-primary w-100">Start the match!</button>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Dark Mode Toggle Script -->
+    <script>
+        const darkModeToggleBtn = document.getElementById('darkModeToggle');
+        const darkModeIcon = document.getElementById('darkModeIcon');
+
+        darkModeToggleBtn.addEventListener('click', function() {
+            const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-bs-theme', 'light');
+                darkModeIcon.className = "bi bi-moon-fill"; // Moon icon for dark mode
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', 'dark');
+                darkModeIcon.className = "bi bi-sun-fill"; // Sun icon for light mode
+            }
+        });
+    </script>
+</body>
+</html>

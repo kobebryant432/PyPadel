@@ -1,9 +1,10 @@
 import builtins
 import sqlite3
 import contextlib
+import random
 import pandas as pd
 from pathlib import Path
-from pypadel import Match, Player
+from pypadel import Match, Player, Point
 from .schemas import MATCHES_TABLE, PLAYERS_TABLE
 from .crud import MatchCRUD, PlayerCRUD
 from .stats import MatchStats
@@ -25,6 +26,23 @@ class SqlDatabase:
         # Initialize the CRUD managers
         self.match_manager = MatchCRUD(self)
         self.player_manager = PlayerCRUD(self)
+    
+    def populate_database(self, num_matches):
+        # Generate players and point strings inside the method
+        players = [Player("Player 1"), Player("Player 2"), Player("Player 3"), Player("Player 4")]
+        point_strings = list(Point.generate_valid_point_strings())
+
+        num_combinations = 3 * 2  # 3 match types and 2 game advantages
+        num_matches_per_combination = num_matches // num_combinations
+
+        for _ in range(num_matches_per_combination):
+            for match_type in range(3):  # Loop over all match types (0: tie, 1: 3 sets, 2: proset)
+                for adv_game in [True, False]:  # Loop over both game advantages
+                    match = Match.create(match_type, players, adv_game=adv_game)
+                    while not match.finished:
+                        point_string = random.choice(point_strings)
+                        match.play_match([point_string])
+                    self.add_match(match, cat="test")
 
     def table_to_dataframe(self, table_name: str) -> pd.DataFrame:
         """Retrieve the entire table content and return it as a pandas DataFrame."""
@@ -55,7 +73,11 @@ class SqlDatabase:
         if img_export:
             summary = match_stats_instance.get_match_summary()
             return match_stats_instance.export_summary_to_image(summary)
-        return match_stats_instance.get_match_summary()
+        match_stats = match_stats_instance.get_match_summary()
+        serve_stats = match_stats_instance.get_team_serve_percentages()
+        break_points = match_stats_instance.get_break_points()
+        golden_points = match_stats_instance.get_golden_points()
+        return match_stats, serve_stats, break_points, golden_points
 
     def export_all(self):
         try:
@@ -122,25 +144,35 @@ class ExcelDataManager:
         self.db = db_instance
 
     def load_data(self, **kwargs):
-        xls = pd.ExcelFile(self.file_path)  # Open the Excel file
-        for (
-            sheet_name
-        ) in xls.sheet_names:  # Loop through all the sheets in the Excel file
-            df = pd.read_excel(self.file_path, sheet_name=sheet_name, **kwargs)
-            df.columns = df.columns.str.strip().str.lower()
-            for index, row in df.iterrows():
-                self._create_match(
-                    row, sheet_name
-                )  # Pass the sheet name to the _create_match method
+        file_extension = Path(self.file_path).suffix
+
+        if file_extension == '.xlsx':
+            xls = pd.ExcelFile(self.file_path)  # Open the Excel file
+            for sheet_name in xls.sheet_names:  # Loop through all the sheets in the Excel file
+                df = pd.read_excel(self.file_path, sheet_name=sheet_name, **kwargs)
+                df.columns = df.columns.str.strip().str.lower()
+                for index, row in df.iterrows():
+                    self._create_match(row, sheet_name)  # Pass the sheet name to the _create_match method
+        elif file_extension == '.csv':
+            encodings = ['utf-8', 'latin1', 'iso-8859-1']  # Add more encodings as needed
+            for encoding in encodings:
+                try:
+                    df = pd.read_csv(self.file_path, encoding=encoding, **kwargs)
+                    df.columns = df.columns.str.strip().str.lower()
+                    for index, row in df.iterrows():
+                        self._create_match(row, 'csv')  # Pass 'csv' as the sheet name to the _create_match method
+                    break  # If no error, break the loop
+                except UnicodeDecodeError:
+                    continue  # If an error occurs, try the next encoding
+            else:  # If all encodings fail, raise an error
+                raise ValueError(f"Unsupported file encoding for file: {self.file_path}")
+        else:
+            raise ValueError(f"Unsupported file extension: {file_extension}")
 
         # After processing all matches, update player statistics
-        players_to_update = (
-            builtins.set()
-        )  # This set keeps track of the players whose stats need to be updated.
+        players_to_update = set()  # This set keeps track of the players whose stats need to be updated.
         for index, row in df.iterrows():
-            players_to_update.update(
-                [row.player_1, row.player_2, row.player_3, row.player_4]
-            )
+            players_to_update.update([row.player_1, row.player_2, row.player_3, row.player_4])
 
         for player_name in players_to_update:
             self.db.player_manager.update_player_stats(player_name)
@@ -148,14 +180,16 @@ class ExcelDataManager:
     def _create_match(self, row, cat):
         # Step 1: Attempt to Convert Timestamp to a datetime.date object
         try:
-            converted_date = row.date.to_pydatetime().date()
-        except AttributeError:
-            print(
-                f"Error: Could not convert the date for the match with details: {row}. Using today's date as fallback."
-            )
-            from datetime import date
-
-            converted_date = date.today()
+            converted_date = pd.to_datetime(row.date).date()
+        except Exception:
+            try:
+                converted_date = row.date.to_pydatetime().date()
+            except Exception:
+                print(
+                    f"Error: Could not convert the date for the match with details: {row}. Using today's date as fallback."
+                )
+                from datetime import date
+                converted_date = date.today()
 
         # Check if adv_game is present, if not default to False
         if "adv_game" in row:

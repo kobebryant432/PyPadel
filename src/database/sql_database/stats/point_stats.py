@@ -175,6 +175,8 @@ class PointStatistics:
                     )
                     for raw_point in raw_input:
                         point_instance = Point(raw_point)
+                        if isinstance(point_instance, InvalidPoint):
+                            continue  # Skip InvalidPoint objects
                         if point_instance.player == player_number:
                             # Increment the total shot-direction count
                             detailed_shot_direction_distribution[
@@ -286,6 +288,9 @@ class PointStatistics:
                     is_player_in_team_1 = player_team_number in [1, 2]
 
                     for raw_point in raw_input:
+                        # Check if the first character of raw_point is not 'e' or 't'
+                        if raw_point[0] not in ['e', 't']: #TODO: use POINT_STRUCTURE here
+                            continue
                         point_instance = Point(raw_point)
                         self._process_point(
                             point_instance,
