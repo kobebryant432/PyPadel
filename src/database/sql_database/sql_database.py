@@ -87,7 +87,7 @@ class SqlDatabase:
                 summary=summary, player_stats=player_stats
             )
         match_stats = match_stats_instance.get_match_summary()
-        player_stats = match_stats_instance.get_player_stats()
+        player_stats = match_stats_instance.get_player_statistics()
         serve_stats = match_stats_instance.get_team_serve_percentages()
         break_points = match_stats_instance.get_break_points()
         golden_points = match_stats_instance.get_golden_points()
