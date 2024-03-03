@@ -52,7 +52,8 @@ For comprehensive usage examples, including match handling and database manageme
    To access detailed statistics of matches and export them for further analysis:
 
    ```python
-   match_stats = db.get_match_stats(match_id=21)
+   player_stats, match_stats = db.get_match_stats(match_id=1)
+   print(player_stats)
    print(match_stats)
    ```
 4. **Exporting Data**:
