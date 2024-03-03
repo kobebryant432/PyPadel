@@ -226,31 +226,39 @@ class Point:
         return f"Player {self.player} made a {self.category} on a {self.side} {self.shot_type} in the {self.direction}"
 
     @staticmethod
-    # TODO: this is a rather ugly way of generating valid point strings. It would be nice to dynamically generate them based on the point structure.
     def generate_valid_point_strings():
-        # Create a dictionary mapping point structure keys to their corresponding dictionaries
+        # Filter out default values from each dictionary
+        filtered_serve_type = {k: v for k, v in serve_type.items() if v != "Default Serve Type"}
+        filtered_player = {k: v for k, v in player.items() if v != "Default Player"}
+        filtered_cat = {k: v for k, v in cat.items() if v != "Default Category"}
+        filtered_side = {k: v for k, v in side.items() if v != "Default Side"}
+        filtered_shot = {k: v for k, v in shot.items() if v != "Default Shot"}
+        filtered_direction = {k: v for k, v in direction.items() if v != "Default Direction"}
+
+        # Create a dictionary mapping point structure keys to their corresponding filtered dictionaries
         key_to_dict = {
-            "serve_type": serve_type,
-            "player": player,
-            "category": cat,
-            "side": side,
-            "shot_type": shot,
-            "direction": direction,
-            # Add other keys as needed
+            "serve_type": filtered_serve_type,
+            "player": filtered_player,
+            "category": filtered_cat,
+            "side": filtered_side,
+            "shot_type": filtered_shot,
+            "direction": filtered_direction,
         }
 
-        # Generate all possible combinations of point structure values
+        # Generate all possible combinations of point structure values, excluding defaults
         valid_point_strings = []
-        for keys in product(*[key_to_dict[key].keys() for key in POINT_STRUCTURE.keys()]):
+        for keys in product(*[key_to_dict[key].keys() for key in POINT_STRUCTURE.keys() if key in key_to_dict]):
             point_string = "".join(keys)
             if point_string[POINT_STRUCTURE['category'].start] == "f":
                 # Introduce a probability to limit the number of forced winners
                 if random.random() < 0.5:
                     for player2 in range(1, 5):
                         if player2 != int(point_string[POINT_STRUCTURE['player'].start]):  # Ensure the second player is not the same as the first player
-                            for side2_key in Point.side.keys():
-                                for shot2_key in Point.shot.keys():
-                                    valid_point_strings.append(point_string + str(player2) + side2_key + shot2_key)
+                            for side2_key in side.keys():
+                                if side[side2_key] != "Default Side":  # Exclude default side
+                                    for shot2_key in shot.keys():
+                                        if shot[shot2_key] != "Default Shot":  # Exclude default shot
+                                            valid_point_strings.append(point_string + str(player2) + side2_key + shot2_key)
             else:
                 valid_point_strings.append(point_string)
 
