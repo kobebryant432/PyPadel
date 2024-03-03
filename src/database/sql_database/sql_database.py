@@ -26,17 +26,24 @@ class SqlDatabase:
         # Initialize the CRUD managers
         self.match_manager = MatchCRUD(self)
         self.player_manager = PlayerCRUD(self)
-    
+
     def populate_database(self, num_matches):
         # Generate players and point strings inside the method
-        players = [Player("Player 1"), Player("Player 2"), Player("Player 3"), Player("Player 4")]
+        players = [
+            Player("Player 1"),
+            Player("Player 2"),
+            Player("Player 3"),
+            Player("Player 4"),
+        ]
         point_strings = list(Point.generate_valid_point_strings())
 
         num_combinations = 3 * 2  # 3 match types and 2 game advantages
         num_matches_per_combination = num_matches // num_combinations
 
         for _ in range(num_matches_per_combination):
-            for match_type in range(3):  # Loop over all match types (0: tie, 1: 3 sets, 2: proset)
+            for match_type in range(
+                3
+            ):  # Loop over all match types (0: tie, 1: 3 sets, 2: proset)
                 for adv_game in [True, False]:  # Loop over both game advantages
                     match = Match.create(match_type, players, adv_game=adv_game)
                     while not match.finished:
@@ -68,16 +75,23 @@ class SqlDatabase:
     def add_match(self, m, cat):
         self.match_manager.add_match(m, cat)
 
-    def get_match_stats(self, match_id, img_export=False):
+    def get_match_stats(self, match_id, img_export=False, html_export=False):
         match_stats_instance = MatchStats(self.conn, match_id)
         if img_export:
             summary = match_stats_instance.get_match_summary()
             return match_stats_instance.export_summary_to_image(summary)
+        if html_export:
+            summary = match_stats_instance.get_match_summary()
+            player_stats = match_stats_instance.get_player_statistics()
+            return match_stats_instance.export_summary_to_html(
+                summary=summary, player_stats=player_stats
+            )
         match_stats = match_stats_instance.get_match_summary()
+        player_stats = match_stats_instance.get_player_stats()
         serve_stats = match_stats_instance.get_team_serve_percentages()
         break_points = match_stats_instance.get_break_points()
         golden_points = match_stats_instance.get_golden_points()
-        return match_stats, serve_stats, break_points, golden_points
+        return player_stats, match_stats, serve_stats, break_points, golden_points
 
     def export_all(self):
         try:
@@ -146,33 +160,49 @@ class ExcelDataManager:
     def load_data(self, **kwargs):
         file_extension = Path(self.file_path).suffix
 
-        if file_extension == '.xlsx':
+        if file_extension == ".xlsx":
             xls = pd.ExcelFile(self.file_path)  # Open the Excel file
-            for sheet_name in xls.sheet_names:  # Loop through all the sheets in the Excel file
+            for (
+                sheet_name
+            ) in xls.sheet_names:  # Loop through all the sheets in the Excel file
                 df = pd.read_excel(self.file_path, sheet_name=sheet_name, **kwargs)
                 df.columns = df.columns.str.strip().str.lower()
                 for index, row in df.iterrows():
-                    self._create_match(row, sheet_name)  # Pass the sheet name to the _create_match method
-        elif file_extension == '.csv':
-            encodings = ['utf-8', 'latin1', 'iso-8859-1']  # Add more encodings as needed
+                    self._create_match(
+                        row, sheet_name
+                    )  # Pass the sheet name to the _create_match method
+        elif file_extension == ".csv":
+            encodings = [
+                "utf-8",
+                "latin1",
+                "iso-8859-1",
+            ]  # Add more encodings as needed
             for encoding in encodings:
                 try:
                     df = pd.read_csv(self.file_path, encoding=encoding, **kwargs)
                     df.columns = df.columns.str.strip().str.lower()
                     for index, row in df.iterrows():
-                        self._create_match(row, 'csv')  # Pass 'csv' as the sheet name to the _create_match method
+                        self._create_match(
+                            row, "csv"
+                        )  # Pass 'csv' as the sheet name to the _create_match method
                     break  # If no error, break the loop
                 except UnicodeDecodeError:
                     continue  # If an error occurs, try the next encoding
             else:  # If all encodings fail, raise an error
-                raise ValueError(f"Unsupported file encoding for file: {self.file_path}")
+                raise ValueError(
+                    f"Unsupported file encoding for file: {self.file_path}"
+                )
         else:
             raise ValueError(f"Unsupported file extension: {file_extension}")
 
         # After processing all matches, update player statistics
-        players_to_update = set()  # This set keeps track of the players whose stats need to be updated.
+        players_to_update = (
+            set()
+        )  # This set keeps track of the players whose stats need to be updated.
         for index, row in df.iterrows():
-            players_to_update.update([row.player_1, row.player_2, row.player_3, row.player_4])
+            players_to_update.update(
+                [row.player_1, row.player_2, row.player_3, row.player_4]
+            )
 
         for player_name in players_to_update:
             self.db.player_manager.update_player_stats(player_name)
@@ -189,6 +219,7 @@ class ExcelDataManager:
                     f"Error: Could not convert the date for the match with details: {row}. Using today's date as fallback."
                 )
                 from datetime import date
+
                 converted_date = date.today()
 
         # Check if adv_game is present, if not default to False

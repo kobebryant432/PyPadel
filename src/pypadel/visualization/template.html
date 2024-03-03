@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Padel Match Summary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .statistics,
+        .player-stats {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .statistics td,
+        .statistics th,
+        .player-stats td,
+        .player-stats th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .statistics th,
+        .player-stats th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #04AA6D;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="section">
+        <h2>Match Results</h2>
+        <table class="statistics" id="matchResults">
+            <tr>
+                <th>Team</th>
+                <th>Set 1</th>
+                <th>Set 2</th>
+                <th>Set 3</th>
+            </tr>
+        </table>
+    </div>
+    <div class="section">
+        <h2>Match Statistics</h2>
+        <table class="statistics" id="matchStatistics">
+            <tr>
+                <th>Team</th>
+                <th>Unforced Errors</th>
+                <th>Winners</th>
+                <th>Forced Winners</th>
+                <th>Total Points Won</th>
+                <th>Total Points Lost</th>
+                <th>Avg Unforced Errors/Game</th>
+                <th>Avg Winners/Game</th>
+                <th>First Serve %</th>
+                <th>Second Serve %</th>
+            </tr>
+        </table>
+    </div>
+    <div class="section">
+        <h2>Player Statistics</h2>
+        <table class="player-stats" id="playerStatistics">
+            <tr>
+                <th>Player</th>
+                <th>Unforced Errors</th>
+                <th>Winners</th>
+                <th>Forced Winners</th>
+            </tr>
+        </table>
+    </div>
+    <div class="section">
+        <h2>Match Graph</h2>
+        <!-- Placeholder for Graph -->
+        <canvas id="matchGraph" width="400" height="200">Graph loading...</canvas>
+    </div>
+    <script>
+        // Mock Data (Replace with the actual match data)
+        const mockData = { MATCH_DATA_PLACEHOLDER };
+
+        function populateData() {
+            populateMatchResults(mockData.matchResults);
+            populateMatchStatistics(mockData.matchStatistics);
+            populatePlayerStatistics(mockData.playerStatistics);
+        }
+
+        function populateMatchResults(data) {
+            const table = document.getElementById('matchResults');
+            data.forEach(team => {
+                let row = `<tr>
+                    <td>${team.team}</td>
+                    <td>${team.sets[0]}</td>
+                    <td>${team.sets[1]}</td>
+                    <td>${team.sets[2]}</td>
+                </tr>`;
+                table.innerHTML += row;
+            });
+        }
+
+        function populateMatchStatistics(data) {
+            const table = document.getElementById('matchStatistics');
+            data.forEach(team => {
+                let row = `<tr>
+                    <td>${team.team}</td>
+                    <td>${team.unforcedErrors}</td>
+                    <td>${team.winners}</td>
+                    <td>${team.forcedWinners}</td>
+                    <td>${team.totalPointsWon}</td>
+                    <td>${team.totalPointsLost}</td>
+                    <td>${team.avgUnforcedErrorsPerGame}</td>
+                    <td>${team.avgWinnersPerGame}</td>
+                    <td>${team.firstServePercentage}</td>
+                    <td>${team.secondServePercentage}</td>
+                </tr>`;
+                table.innerHTML += row;
+            });
+        }
+
+        function populatePlayerStatistics(data) {
+            const table = document.getElementById('playerStatistics');
+            data.forEach(player => {
+                let row = `<tr>
+                    <td>${player.player}</td>
+                    <td>${player.unforcedErrors}</td>
+                    <td>${player.winners}</td>
+                    <td>${player.forcedWinners}</td>
+                </tr>`;
+                table.innerHTML += row;
+            });
+        }
+
+        // Call populateData on page load
+        document.addEventListener('DOMContentLoaded', populateData);
+    </script>
+</body>
+
+</html>
