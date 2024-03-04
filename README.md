@@ -52,7 +52,8 @@ For comprehensive usage examples, including match handling and database manageme
    To access detailed statistics of matches and export them for further analysis:
 
    ```python
-   match_stats = db.get_match_stats(match_id=21)
+   player_stats, match_stats = db.get_match_stats(match_id=1)
+   print(player_stats)
    print(match_stats)
    ```
 4. **Exporting Data**:
@@ -77,17 +78,7 @@ Each input is divided into 6 categories:
 
 In the following table, all the possible combinations of shots and their abbreviations are given.
 
-| Serve | Player    | Main Category                  | General Shot Type | Specific Shot Type | Shot Direction                  |
-| ----- | --------- | ------------------------------ | ----------------- | ------------------ | ------------------------------- |
-| e     | 1st Serve | 1 Player 1 (Right side team 1) | u Unforced Error  | fh Forehand        | v Volley                        |
-| t     | 2nd Serve | 2 Player 2 (Left side team 1)  | f Forced Winner*  | bh Backhand        | n Normal (without the backwall) |
-|       |           | 3 Player 3 (Right Side team 2) | w Winner          |                    | g Glass (with the backwall)     |
-|       |           | 4 Player 4 (Left side team 2)  |                   |                    | hi High Contact                 |
-|       |           |                                |                   |                    | hd Defense of High contact      |
-|       |           |                                |                   |                    |                                 |
-|       |           |                                |                   |                    | v Vibora                        |
-|       |           |                                |                   |                    | j Bajada                        |
-|       |           |                                |                   |                    |                                 |
+<img src="image/README/table_pointstring_explanations.png" width="900" height="300">
 
 The first 3 categories are general categories and are universal for each input, for categories 4 and 5 there are specific pairings that are used (shown in colour). For example, the input “hdv” (“hd” – Cat4 and “v” – Cat5) would be a High Defense of a Vibora whereas the input “fhv” would be a forehand volley, the “v” is contextual and depends on the previous input.
 
