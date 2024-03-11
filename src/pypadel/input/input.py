@@ -12,12 +12,40 @@ import pandas as pd
 from datetime import datetime
 
 
+import os
+
+
 class InputManager:
     def __init__(self, match_instance):
         self.match = match_instance
         self.input_history = []  # Stack to maintain history of inputs
 
+        date_str = self.match.date
+        team1_names = "and".join(
+            [self.match.players[0].name, self.match.players[1].name]
+        )
+        team2_names = "and".join(
+            [self.match.players[2].name, self.match.players[3].name]
+        )
+        match_type = self.match.__class__.__name__
+
+        # Construct the log file name with team information
+        self.log_file_path = (
+            f"data/logs/match_log_{date_str}_{team1_names}_vs_{team2_names}.log"
+        )
+
+        # Check if the log file already exists
+        if not os.path.exists(self.log_file_path):
+            # If not, create it and write the match details on the first line
+            with open(self.log_file_path, "w") as log_file:
+                match_details = f"{date_str},{self.match.tournament},{self.match.r},{self.match.adv_game},{self.match.players[0].name},{self.match.players[1].name},{self.match.players[2].name},{self.match.players[3].name},{match_type},"
+                log_file.write(match_details)
+
     def process_input(self, user_input):
+        # Log the input to a file for recovery
+        with open(self.log_file_path, "a") as log_file:
+            log_file.write(user_input + ",")  # Write the input followed by a newline
+
         if user_input == "u":
             self.undo_last_input()
             return
@@ -66,8 +94,8 @@ def start_match(
 ):
     date = get_valid_date()
     tournament = input("Tournament name: ")
-    r = input("Round :")
-    adv_game = input("Are the games played with advantage - (Y) yes or (N) no:") in [
+    r = input("Round: ")
+    adv_game = input("Are the games played with advantage - (Y) yes or (N) no: ") in [
         "y",
         "Y",
     ]
@@ -75,7 +103,7 @@ def start_match(
     p2 = Player(input("Name player 2: "))
     p3 = Player(input("Name player 3: "))
     p4 = Player(input("Name player 4: "))
-    m_type = input("Match_type")
+    m_type = input("Match_type: ")
 
     players = [p for p in [p1, p2, p3, p4]]
 
@@ -91,14 +119,20 @@ def start_match(
     # Use the InputManager for processing inputs
     input_manager = InputManager(m)
 
+    # Acknowledge the input of match details and display the match info
+    print("Thanks for the information, this is the match info:")
+    print(m)
+
     while True:
-        x = input()
+        x = input("Point: ")  # Prompt the user for point input
         if x == "Q":
             break
         while not input_ok(x, point_structure, forced_winner_point_structure):
             if x == "Q":
                 break
-            x = input(f"{x} is an invalid input. Try again")
+            x = input(
+                f"{x} is an invalid input. Try again: "
+            )  # Prompt again if input is invalid
 
         # Process the input using the InputManager
         input_manager.process_input(x)
